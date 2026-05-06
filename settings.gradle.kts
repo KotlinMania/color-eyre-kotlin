@@ -17,3 +17,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "color-eyre-kotlin"
+

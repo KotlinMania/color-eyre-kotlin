@@ -1,32 +1,327 @@
-# ColorEyre in Kotlin
+# color-eyre-kotlin in Kotlin
 
 [![GitHub link](https://img.shields.io/badge/GitHub-KotlinMania%2Fcolor--eyre--kotlin-blue.svg)](https://github.com/KotlinMania/color-eyre-kotlin)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.kotlinmania/color-eyre-kotlin)](https://central.sonatype.com/artifact/io.github.kotlinmania/color-eyre-kotlin)
 [![Build status](https://img.shields.io/github/actions/workflow/status/KotlinMania/color-eyre-kotlin/ci.yml?branch=main)](https://github.com/KotlinMania/color-eyre-kotlin/actions)
 
-Kotlin Multiplatform line-by-line clean-room port of the Rust crate [`color-eyre`](https://crates.io/crates/color-eyre).
+This is a Kotlin Multiplatform line-by-line transliteration port of [`eyre-rs/eyre`](https://github.com/eyre-rs/eyre).
 
-> **Status: scaffold — porting has not started.** This repo currently contains build infrastructure only. The upstream Rust source for the `color-eyre` crate will be cloned into `tmp/` (gitignored) when porting begins.
+**Original Project:** This port is based on [`eyre-rs/eyre`](https://github.com/eyre-rs/eyre). All design credit and project intent belong to the upstream authors; this repository is a faithful port to Kotlin Multiplatform with no behavioural changes intended.
 
-## About
+### Porting status
 
-Error reporting with color and span backtraces
+This is an **in-progress port**. The goal is feature parity with the upstream Rust crate while providing a native Kotlin Multiplatform API. Every Kotlin file carries a `// port-lint: source <path>` header naming its upstream Rust counterpart so the AST-distance tool can track provenance.
 
-This port targets functional parity with the upstream Rust crate while presenting an idiomatic Kotlin Multiplatform API. Every Kotlin file is a faithful translation of an upstream Rust file and carries a `// port-lint: source <path>` header so the AST-distance tool can track provenance.
+---
 
-## Supported targets
+## Upstream README — `eyre-rs/eyre`
 
-- macOS arm64 / x64
-- Linux x64
-- Windows mingw-x64
-- iOS arm64 / x64 / simulator-arm64
-- JS (browser + Node.js)
-- Wasm-JS (browser + Node.js)
-- Android (API 24+)
+> The text below is reproduced and lightly edited from [`https://github.com/eyre-rs/eyre`](https://github.com/eyre-rs/eyre). It is the upstream project's own description and remains under the upstream authors' authorship; links have been rewritten to absolute upstream URLs so they continue to resolve from this repository.
 
-## Installation
+## eyre
 
-Once published:
+[![Build Status][actions-badge]][actions-url]
+[![Latest Version][version-badge]][version-url]
+[![Rust Documentation][docs-badge]][docs-url]
+[![Discord chat][discord-badge]][discord-url]
+
+[actions-badge]: https://github.com/eyre-rs/eyre/workflows/Continuous%20integration/badge.svg
+[actions-url]: https://github.com/eyre-rs/eyre/actions?query=workflow%3A%22Continuous+integration%22
+[version-badge]: https://img.shields.io/crates/v/eyre.svg
+[version-url]: https://crates.io/crates/eyre
+[docs-badge]: https://img.shields.io/badge/docs-latest-blue.svg
+[docs-url]: https://docs.rs/eyre
+[discord-badge]: https://img.shields.io/discord/960645145018110012?label=eyre%20community%20discord
+[discord-url]: https://discord.gg/z94RqmUTKB
+
+This library provides [`eyre::Report`][Report], a trait object based
+error handling type for easy idiomatic error handling and reporting in Rust
+applications.
+
+This crate is a fork of [`anyhow`]  with support for customized
+error reports. For more details on customization checkout the docs on
+[`eyre::EyreHandler`].
+
+## Custom Report Handlers
+
+The heart of this crate is its ability to swap out the Handler type to change
+what information is carried alongside errors and how the end report is
+formatted. This crate is meant to be used alongside companion crates that
+customize its behavior. Below is a list of known crates that export report
+handlers for eyre and short summaries of what features they provide.
+
+- [`stable-eyre`]: Switches the backtrace type from `std`'s to `backtrace-rs`'s
+  so that it can be captured on stable. The report format is identical to
+  `DefaultHandler`'s report format.
+- [`color-eyre`]: Captures a `backtrace::Backtrace` and a
+  `tracing_error::SpanTrace`. Provides a `Help` trait for attaching warnings
+  and suggestions to error reports. The end report is then pretty printed with
+  the help of [`color-backtrace`], [`color-spantrace`], and `ansi_term`. Check
+  out the README on [`color-eyre`] for details on the report format.
+- [`simple-eyre`]: A minimal `EyreHandler` that captures no additional
+  information, for when you do not wish to capture `Backtrace`s with errors.
+- [`jane-eyre`]: A report handler crate that exists purely for the pun of it.
+  Currently just re-exports `color-eyre`.
+
+## Usage Recommendations and Stability Considerations
+
+**We recommend users do not re-export types from this library as part their own
+public API for libraries with external users.** The main reason for this is
+that it will make your library API break if we ever bump the major version
+number on eyre and your users upgrade the eyre version they use in their
+application code before you upgrade your own eyre dep version[^1].
+
+However, even beyond this API stability hazard, there are other good reasons to
+avoid using `eyre::Report` as your public error type.
+
+- You export an undocumented error interface that is otherwise still accessible
+  via downcast, making it hard for users to react to specific errors while not
+  preventing them from depending on details you didn't mean to make part of
+  your public API.
+  - This in turn makes the error types of all libraries you use a part of your
+    public API as well, and makes changing any of those libraries into an
+    undetectable runtime breakage.
+- If many of your errors are constructed from strings you encourage your users
+  to use string comparison for reacting to specific errors which is brittle
+  and turns updating error messages into a potentially undetectable runtime
+  breakage.
+
+## Details
+
+- Use `Result<T, eyre::Report>`, or equivalently `eyre::Result<T>`, as the
+  return type of any fallible function.
+
+  Within the function, use `?` to easily propagate any error that implements the
+  `std::error::Error` trait.
+
+  ```rust
+  use eyre::Result;
+
+  fn get_cluster_info() -> Result<ClusterMap> {
+      let config = std::fs::read_to_string("cluster.json")?;
+      let map: ClusterMap = serde_json::from_str(&config)?;
+      Ok(map)
+  }
+  ```
+
+- Wrap a lower level error with a new error created from a message to help the
+  person troubleshooting understand the chain of failures that occurred. A
+  low-level error like "No such file or directory" can be annoying to debug
+  without more information about what higher level step the application was in
+  the middle of.
+
+  ```rust
+  use eyre::{ResultExt, Result};
+
+  fn main() -> Result<()> {
+      ...
+      it.detach().wrap_err("Failed to detach the important thing")?;
+
+      let content = std::fs::read(path)
+          .wrap_err_with(|| format!("Failed to read instrs from {}", path))?;
+      ...
+  }
+  ```
+
+  ```console
+  Error: Failed to read instrs from ./path/to/instrs.json
+
+  Caused by:
+      No such file or directory (os error 2)
+  ```
+
+- Downcasting is supported and can be by value, by shared reference, or by
+  mutable reference as needed.
+
+  ```rust
+  // If the error was caused by redaction, then return a
+  // tombstone instead of the content.
+  match root_cause.downcast_ref::<DataStoreError>() {
+      Some(DataStoreError::Censored(_)) => Ok(Poll::Ready(REDACTED_CONTENT)),
+      None => Err(error),
+  }
+  ```
+
+- A backtrace is captured and printed with the error. On nightly,
+  eyre will use the underlying error's backtrace if it has one. In order
+  to see backtraces, they must be enabled through the environment variables
+  described in [`std::backtrace`]:
+
+  - If you want panics and errors to both have backtraces, set
+    `RUST_BACKTRACE=1`;
+  - If you want only errors to have backtraces, set `RUST_LIB_BACKTRACE=1`;
+  - If you want only panics to have backtraces, set `RUST_BACKTRACE=1` and
+    `RUST_LIB_BACKTRACE=0`.
+
+  The tracking issue for this feature is [rust-lang/rust#53487].
+
+  [`std::backtrace`]: https://doc.rust-lang.org/std/backtrace/index.html#environment-variables
+  [rust-lang/rust#53487]: https://github.com/rust-lang/rust/issues/53487
+
+- Eyre works with any error type that has an impl of `std::error::Error`,
+  including ones defined in your crate. We do not bundle a `derive(Error)` macro
+  but you can write the impls yourself or use a standalone macro like
+  [thiserror](https://github.com/dtolnay/thiserror).
+
+  ```rust
+  use thiserror::Error;
+
+  #[derive(Error, Debug)]
+  pub enum FormatError {
+      #[error("Invalid header (expected {expected:?}, got {found:?})")]
+      InvalidHeader {
+          expected: String,
+          found: String,
+      },
+      #[error("Missing attribute: {0}")]
+      MissingAttribute(String),
+  }
+  ```
+
+- One-off error messages can be constructed using the `eyre!` macro, which
+  supports string interpolation and produces an `eyre::Report`.
+
+  ```rust
+  return Err(eyre!("Missing attribute: {}", missing));
+  ```
+
+  A `bail!` macro is provided as a shorthand for the same early return.
+
+  ```rust
+  bail!("Missing attribute: {}", missing);
+  ```
+
+  This macro also supports format args captures.
+
+  ```rust
+  return Err(eyre!("Missing attribute: {missing}"));
+  ```
+
+  ```rust
+  bail!("Missing attribute: {missing}");
+  ```
+
+## No-std support
+
+No-std support was removed in 2020 in [commit 608a16a] due to unaddressed upstream breakages.
+[commit 608a16a]:
+https://github.com/eyre-rs/eyre/pull/29/commits/608a16aa2c2c27eca6c88001cc94c6973c18f1d5
+
+
+## Backtrace support
+
+The built in default handler has support for capturing backtrace using `rustc-1.65` or later.
+
+Backtraces are captured when an error is converted to an `eyre::Report` (such as using `?` or `eyre!`).
+
+If using the nightly toolchain, backtraces will also be captured and accessed from other errors using [error_generic_member_access](https://github.com/rust-lang/rfcs/pull/2895) if available.
+
+## Comparison to failure
+
+The `eyre::Report` type works something like `failure::Error`, but unlike
+failure ours is built around the standard library's `std::error::Error` trait
+rather than a separate trait `failure::Fail`. The standard library has adopted
+the necessary improvements for this to be possible as part of [RFC 2504].
+
+[RFC 2504]: https://github.com/rust-lang/rfcs/blob/master/text/2504-fix-error.md
+
+## Comparison to thiserror
+
+Use `eyre` if you don't think you'll do anything with an error other than
+report it. This is common in application code. Use `thiserror` if you think
+you need an error type that can be handled via match or reported. This is
+common in library crates where you don't know how your users will handle
+your errors.
+
+## Compatibility with `anyhow`
+
+This crate does its best to be usable as a drop in replacement of `anyhow` and
+vice-versa by `re-exporting` all of the renamed APIs with the names used in
+`anyhow`, though there are some differences still.
+
+### Disabling the compatibility layer
+
+The `anyhow` compatibility layer is disabled by default.
+If you need anyhow compatibility, it is advisable
+to enable the `"anyhow"` feature:
+
+```toml
+eyre = { version = "0.6", features = ["anyhow"] }
+```
+
+### `Context` and `Option`
+
+As part of renaming `Context` to `ResultExt` we also intentionally do not
+implement `ResultExt` for `Option`. This decision was made because `wrap_err`
+implies that you're creating a new error that saves the old error as its
+`source`. With `Option` there is no source error to wrap, so `wrap_err` ends up
+being somewhat meaningless.
+
+Instead `eyre` offers [`OptionExt::ok_or_eyre`] to yield _static_ errors from `None`,
+and intends for users to use the combinator functions provided by
+`std`, converting `Option`s to `Result`s, for _dynamic_ errors.
+So where you would write this with
+anyhow:
+
+[`OptionExt::ok_or_eyre`]: https://docs.rs/eyre/latest/eyre/trait.OptionExt.html#tymethod.ok_or_eyre
+
+```rust
+use anyhow::Context;
+
+let opt: Option<()> = None;
+let result_static = opt.context("static error message");
+let result_dynamic = opt.with_context(|| format!("{} error message", "dynamic"));
+```
+
+With `eyre` we want users to write:
+
+```rust
+use eyre::{eyre, OptionExt, Result};
+
+let opt: Option<()> = None;
+let result_static: Result<()> = opt.ok_or_eyre("static error message");
+let result_dynamic: Result<()> = opt.ok_or_else(|| eyre!("{} error message", "dynamic"));
+```
+
+**NOTE**: However, to help with porting we do provide a `ContextCompat` trait which
+implements `context` for options which you can import to make existing
+`.context` calls compile.
+
+[Report]: https://docs.rs/eyre/*/eyre/struct.Report.html
+[`eyre::EyreHandler`]: https://docs.rs/eyre/*/eyre/trait.EyreHandler.html
+[`eyre::ResultExt`]: https://docs.rs/eyre/*/eyre/trait.ResultExt.html
+[`anyhow::Context`]: https://docs.rs/anyhow/*/anyhow/trait.Context.html
+[`anyhow`]: https://github.com/dtolnay/anyhow
+[`tracing_error::SpanTrace`]: https://docs.rs/tracing-error/*/tracing_error/struct.SpanTrace.html
+[`stable-eyre`]: https://github.com/eyre-rs/stable-eyre
+[`color-eyre`]: https://github.com/eyre-rs/eyre/tree/master/color-eyre
+[`jane-eyre`]: https://github.com/yaahc/jane-eyre
+[`simple-eyre`]: https://github.com/eyre-rs/eyre/tree/master/simple-eyre
+[`color-spantrace`]: https://github.com/eyre-rs/eyre/tree/master/color-spantrace
+[`color-backtrace`]: https://github.com/athre0z/color-backtrace
+
+[^1]: example and explanation of breakage https://github.com/eyre-rs/eyre/issues/30#issuecomment-647650361
+
+#### License
+
+<sup>
+Licensed under either of <a href="LICENSE-APACHE">Apache License, Version
+2.0</a> or <a href="LICENSE-MIT">MIT license</a> at your option.
+</sup>
+
+<br>
+
+<sub>
+Unless you explicitly state otherwise, any contribution intentionally submitted
+for inclusion in this crate by you, as defined in the Apache-2.0 license, shall
+be dual licensed as above, without any additional terms or conditions.
+</sub>
+
+---
+
+## About this Kotlin port
+
+### Installation
 
 ```kotlin
 dependencies {
@@ -34,19 +329,34 @@ dependencies {
 }
 ```
 
-## Build
+### Building
 
 ```bash
 ./gradlew build
 ./gradlew test
 ```
 
-## Porting guidelines
+### Targets
 
-See [CLAUDE.md](CLAUDE.md) and [AGENTS.md](AGENTS.md) for translator discipline, port-lint header convention, and Rust → Kotlin idiom mapping.
+- macOS arm64
+- Linux x64
+- Windows mingw-x64
+- iOS arm64 / simulator-arm64 (Swift export + XCFramework)
+- JS (browser + Node.js)
+- Wasm-JS (browser + Node.js)
+- Android (API 24+)
 
-## License
+### Porting guidelines
 
-Apache 2.0 — see [LICENSE](LICENSE).
+See [AGENTS.md](AGENTS.md) and [CLAUDE.md](CLAUDE.md) for translator discipline, port-lint header convention, and Rust → Kotlin idiom mapping.
 
-Original work copyrighted by the upstream `color-eyre` authors. Kotlin port copyright (c) 2026 Sydney Renee and The Solace Project.
+### License
+
+This Kotlin port is distributed under the same MIT license as the upstream [`eyre-rs/eyre`](https://github.com/eyre-rs/eyre). See [LICENSE](LICENSE) (and any sibling `LICENSE-*` / `NOTICE` files mirrored from upstream) for the full text.
+
+Original work copyrighted by the eyre authors.  
+Kotlin port: Copyright (c) 2026 Sydney Renee and The Solace Project.
+
+### Acknowledgments
+
+Thanks to the [`eyre-rs/eyre`](https://github.com/eyre-rs/eyre) maintainers and contributors for the original Rust implementation. This port reproduces their work in Kotlin Multiplatform; bug reports about upstream design or behavior should go to the upstream repository.
