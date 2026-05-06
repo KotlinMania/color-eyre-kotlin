@@ -123,11 +123,10 @@ rootProject.extensions.configure<WasmYarnRootEnvSpec>("kotlinWasmYarnSpec") {
 
 rootProject.extensions.configure<YarnRootExtension>("kotlinYarn") {
     resolution("diff", "8.0.3")
-    resolution("serialize-javascript", "7.0.5")
-    resolution("webpack", "5.106.2")
-
     resolution("**/diff", "8.0.3")
+    resolution("serialize-javascript", "7.0.5")
     resolution("**/serialize-javascript", "7.0.5")
+    resolution("webpack", "5.106.2")
     resolution("**/webpack", "5.106.2")
     resolution("follow-redirects", "1.16.0")
     resolution("**/follow-redirects", "1.16.0")
@@ -169,14 +168,14 @@ mavenPublishing {
 
     pom {
         name.set("color-eyre-kotlin")
-        description.set("Kotlin Multiplatform port of the Rust crate `color-eyre` — Error reporting with color and span backtraces")
+        description.set("Kotlin Multiplatform port of eyre-rs/eyre - An error report handler for panics and eyre::Reports for colorful, consistent, and well formatted error reports for all kinds of errors")
         inceptionYear.set("2026")
         url.set("https://github.com/KotlinMania/color-eyre-kotlin")
 
         licenses {
             license {
-                name.set("Apache-2.0")
-                url.set("https://opensource.org/licenses/Apache-2.0")
+                name.set("MIT")
+                url.set("https://opensource.org/licenses/MIT")
                 distribution.set("repo")
             }
         }
@@ -196,4 +195,18 @@ mavenPublishing {
             developerConnection.set("scm:git:ssh://github.com/KotlinMania/color-eyre-kotlin.git")
         }
     }
+}
+
+tasks.register("test") {
+    group = "verification"
+    description =
+        "Runs a portable test suite (macOS + JS + WasmJS). Android and non-host native targets are intentionally excluded."
+
+    val defaultTestTasks = listOf(
+        "macosArm64Test",
+        "jsNodeTest",
+        "wasmJsNodeTest",
+    )
+
+    dependsOn(defaultTestTasks.mapNotNull { taskName -> tasks.findByName(taskName) })
 }
