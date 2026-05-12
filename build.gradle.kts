@@ -1,3 +1,6 @@
+import org.gradle.api.tasks.testing.AbstractTestTask
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
@@ -42,35 +45,98 @@ kotlin {
         freeCompilerArgs.add("-Xexpect-actual-classes")
     }
 
+    // ---- Maximal Kotlin 2.3.21 target coverage ----
+    //
+    // Every non-JVM Kotlin target the compiler supports is declared here.
+    // `jvm()` is intentionally omitted: this workspace standardizes on
+    // strict-KMP (no JVM-only target — see threadlocal-kotlin for the one
+    // documented exception). CodeQL Kotlin extraction is handled by the
+    // dedicated `codeqlCompileJvm` JavaExec task further down this file
+    // instead of a real jvm() target, because the K2 multiplatform pipeline
+    // for `compileKotlinJvm` bypasses the legacy K2JVMCompiler.doExecute
+    // path the CodeQL Java agent hooks.
+
     val xcf = XCFramework("ColorEyre")
 
+    // Apple desktop
     macosArm64 {
-        binaries.framework {
-            baseName = "ColorEyre"
-            xcf.add(this)
-        }
+        binaries.framework { baseName = "ColorEyre"; xcf.add(this) }
     }
-    linuxX64()
-    mingwX64()
+    // macosX64 was removed in Kotlin 2.3 — "Target is no longer available."
+
+    // iOS
     iosArm64 {
-        binaries.framework {
-            baseName = "ColorEyre"
-            xcf.add(this)
-        }
+        binaries.framework { baseName = "ColorEyre"; xcf.add(this) }
     }
     iosSimulatorArm64 {
-        binaries.framework {
-            baseName = "ColorEyre"
-            xcf.add(this)
-        }
+        binaries.framework { baseName = "ColorEyre"; xcf.add(this) }
     }
+    iosX64 {
+        binaries.framework { baseName = "ColorEyre"; xcf.add(this) }
+    }
+
+    // tvOS
+    tvosArm64 {
+        binaries.framework { baseName = "ColorEyre"; xcf.add(this) }
+    }
+    tvosSimulatorArm64 {
+        binaries.framework { baseName = "ColorEyre"; xcf.add(this) }
+    }
+    // tvosX64 was removed in Kotlin 2.3 — "Target is no longer available."
+
+    // watchOS
+    watchosArm32 {
+        binaries.framework { baseName = "ColorEyre"; xcf.add(this) }
+    }
+    watchosArm64 {
+        binaries.framework { baseName = "ColorEyre"; xcf.add(this) }
+    }
+    watchosDeviceArm64 {
+        binaries.framework { baseName = "ColorEyre"; xcf.add(this) }
+    }
+    watchosSimulatorArm64 {
+        binaries.framework { baseName = "ColorEyre"; xcf.add(this) }
+    }
+    // watchosX64 was removed in Kotlin 2.3 — "Target is no longer available."
+
+    // Linux
+    linuxX64()
+    linuxArm64()
+
+    // Windows
+    mingwX64()
+
+    // Android native (NDK targets — separate from the Android JVM library below)
+    androidNativeArm32()
+    androidNativeArm64()
+    androidNativeX86()
+    androidNativeX64()
+
+    // Web — JS (browser + nodejs runtimes on a single target)
+    //
+    // The asymmetric `js("jsBrowser")` + `js("jsNode")` split that the workspace
+    // template once prescribed cannot satisfy Gradle 9.x's "unique attribute
+    // sets" rule: the two targets emit `jsBrowserApiElements` and
+    // `jsNodeApiElements` consumable configurations that share an identical
+    // attribute set, and the configuration of the `:compileAndroidHostTest`
+    // task fails with "Consumable configurations with identical capabilities …
+    // must have unique attributes". This port has no Node-only `actual` so
+    // the single-target layout is also adequate at the source level.
     js {
         browser()
         nodejs()
     }
+
+    // Web — WasmJS
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser()
+        nodejs()
+    }
+
+    // Web — WasmWASI (experimental; nodejs runtime via wasi-preview1)
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmWasi {
         nodejs()
     }
 
@@ -105,12 +171,36 @@ kotlin {
     jvmToolchain(21)
 }
 
+// Show every test event in the CI log so runs are auditable.
+// Without this, gradle's default test-task output is just
+// `> Task :iosSimulatorArm64Test` with no per-test PASSED/FAILED,
+// which makes a green run indistinguishable from a no-op task. The
+// XML/HTML reports in build/test-results/ and build/reports/tests/ still
+// carry the canonical record, but those aren't visible in CI logs.
+tasks.withType<AbstractTestTask>().configureEach {
+    testLogging {
+        events(
+            TestLogEvent.STARTED,
+            TestLogEvent.PASSED,
+            TestLogEvent.SKIPPED,
+            TestLogEvent.FAILED,
+            TestLogEvent.STANDARD_OUT,
+            TestLogEvent.STANDARD_ERROR,
+        )
+        exceptionFormat = TestExceptionFormat.FULL
+        showCauses = true
+        showExceptions = true
+        showStackTraces = true
+        showStandardStreams = true
+    }
+}
+
 rootProject.extensions.configure<NodeJsEnvSpec>("kotlinNodeJsSpec") {
-    version.set("22.22.2")
+    version.set("24.15.0")
 }
 
 rootProject.extensions.configure<WasmNodeJsEnvSpec>("kotlinWasmNodeJsSpec") {
-    version.set("22.22.2")
+    version.set("24.15.0")
 }
 
 rootProject.extensions.configure<YarnRootEnvSpec>("kotlinYarnSpec") {
@@ -178,6 +268,11 @@ mavenPublishing {
                 url.set("https://opensource.org/licenses/MIT")
                 distribution.set("repo")
             }
+            license {
+                name.set("Apache-2.0")
+                url.set("https://www.apache.org/licenses/LICENSE-2.0")
+                distribution.set("repo")
+            }
         }
 
         developers {
@@ -186,6 +281,9 @@ mavenPublishing {
                 name.set("Sydney Renee")
                 email.set("sydney@solace.ofharmony.ai")
                 url.set("https://github.com/sydneyrenee")
+                organization.set("The Solace Project")
+                organizationUrl.set("https://github.com/KotlinMania")
+                roles.set(listOf("maintainer", "kotlin-port-author"))
             }
         }
 
@@ -197,15 +295,29 @@ mavenPublishing {
     }
 }
 
-// CodeQL Java/Kotlin extraction target. Kotlin 2.3.x's K2 multiplatform
-// pipeline routes `compileKotlinJvm` through `JvmCliPipeline.execute` and
-// bypasses the legacy `K2JVMCompiler.doExecute` method that the CodeQL
-// Java agent's `KotlinInterceptor` hooks. The agent therefore produces a
-// zero-AST database when wrapped around a KMP build. This task gives the
-// agent a real `K2JVMCompiler.doExecute` invocation to attach to by
-// running kotlinc directly against `commonMain` in a JavaExec subprocess.
-// The classpath and outputs below are not published and are not part of
-// any KMP target.
+// ---------------------------------------------------------------------------
+// CodeQL Java/Kotlin extraction task
+//
+// The Kotlin Multiplatform build above runs on Kotlin 2.3.21. The K2 phased
+// compilation pipeline (`org.jetbrains.kotlin.cli.pipeline.JvmCliPipeline`)
+// is engaged whenever `-Xmulti-platform`/`-Xfragments=…` are in the kotlinc
+// args — that's KGP's standard multiplatform compileKotlinJvm shape. The
+// CodeQL Java agent (`codeql-java-agent.jar` v2.25.4) hooks
+// `K2JVMCompiler.doExecute(…)`, which the new pipeline bypasses, so an
+// agent-instrumented KMP compileKotlinJvm produces zero Kotlin TRAP.
+//
+// Fix: run a separate single-target JVM compile of commonMain sources via
+// JavaExec with NO multiplatform flags. Without `-Xmulti-platform` /
+// `-Xfragments=…` in the args, kotlinc 2.3.21 still dispatches through the
+// legacy `K2JVMCompiler.doExecute` path, the agent's class-load hook fires,
+// and per-source-file `*.kt.trap.gz` files get written.
+//
+// The agent is attached via `JAVA_TOOL_OPTIONS=-javaagent:codeql-java-agent.jar=java,kotlin`
+// (set by the CI step around this task), so the JavaExec subprocess loads it
+// at JVM startup independently of any LD_PRELOAD propagation chain.
+//
+// This task is for CodeQL extraction only. The output `.class` files are not
+// published and are not part of any KMP target.
 
 val codeqlKotlinc: Configuration by configurations.creating {
     description = "Kotlin compiler (CodeQL extraction target only — not published)"
@@ -296,12 +408,15 @@ val codeqlCompileJvm = tasks.register<JavaExec>("codeqlCompileJvm") {
 tasks.register("test") {
     group = "verification"
     description =
-        "Runs a portable test suite (macOS + JS + WasmJS). Android and non-host native targets are intentionally excluded."
+        "Runs the host-portable test suite (macOS + JS + WasmJS + Android unit). " +
+        "Non-host native targets (mingwX64, linuxX64) only run on their own host."
 
     val defaultTestTasks = listOf(
         "macosArm64Test",
         "jsNodeTest",
         "wasmJsNodeTest",
+        "compileAndroidMain",
+        "assembleUnitTest",
     )
 
     dependsOn(defaultTestTasks.mapNotNull { taskName -> tasks.findByName(taskName) })
