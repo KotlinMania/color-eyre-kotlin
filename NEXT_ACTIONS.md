@@ -84,7 +84,7 @@ Every matched file is listed below with function and type symbol parity.
 
 ### 6. section.mod
 
-- **Target:** `section.Section [STUB]`
+- **Target:** `section.Mod [STUB]`
 - **Similarity:** 0.00
 - **Dependents:** 0
 - **Priority Score:** 10610.0
