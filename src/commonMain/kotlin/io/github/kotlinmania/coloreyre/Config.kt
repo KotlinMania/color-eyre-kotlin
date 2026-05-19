@@ -2,6 +2,8 @@
 package io.github.kotlinmania.coloreyre
 
 import io.github.kotlinmania.coloreyre.section.PanicMessage
+import io.github.kotlinmania.owocolors.Style
+import io.github.kotlinmania.owocolors.style
 
 /**
  * Configuration options for customizing the behavior of the provided panic and
@@ -749,4 +751,3 @@ public fun interface FilterCallback {
 public fun interface IssueFilterCallback {
     public fun filter(kind: ErrorKind): Boolean
 }
-

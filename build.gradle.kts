@@ -131,11 +131,18 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.8.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.4.0")
+                implementation("io.github.kotlinmania:once-cell-kotlin:0.1.0")
+                implementation("io.github.kotlinmania:owo-colors-kotlin:0.1.0")
+                implementation("io.github.kotlinmania:url-kotlin:0.1.0")
             }
         }
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
+                implementation("io.github.kotlinmania:pretty-assertions-kotlin:0.1.0")
+                implementation("io.github.kotlinmania:thiserror-kotlin:0.1.0")
+                implementation("io.github.kotlinmania:tracing-kotlin:0.1.0")
+                implementation("io.github.kotlinmania:tracing-subscriber-kotlin:0.1.0")
             }
         }
 

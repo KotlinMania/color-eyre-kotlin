@@ -4,6 +4,7 @@ package io.github.kotlinmania.coloreyre.section.github
 import io.github.kotlinmania.coloreyre.Backtrace
 import io.github.kotlinmania.coloreyre.Location
 import io.github.kotlinmania.coloreyre.SpanTrace
+import io.github.kotlinmania.url.Url
 
 internal data class IssueSection(
     private val url: String,
@@ -86,4 +87,3 @@ private data class DisplayFromDebug<T>(
 ) {
     override fun toString(): String = value.toString()
 }
-
