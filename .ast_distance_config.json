@@ -1,5 +1,4 @@
 {
-  "parity_mode": false,
   "name": "color-eyre-kotlin",
   "source": {
     "path": "tmp/color-eyre/src",
