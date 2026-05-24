@@ -139,9 +139,8 @@ For each file to be considered "complete":
 
 ```bash
 # Initialize task queue for systematic porting
-cd tools/ast_distance
-./ast_distance --init-tasks ../../tmp/color-eyre/src rust ../../src/commonMain/kotlin/io/github/kotlinmania/coloreyre kotlin tasks.json ../../AGENTS.md
+/Volumes/stuff/Projects/kotlinmania/bin/ast_distance --init-tasks tmp/color-eyre/src rust src/commonMain/kotlin/io/github/kotlinmania/coloreyre kotlin tmp/tasks.json AGENTS.md
 
 # Get next high-priority task
-./ast_distance --assign tasks.json <agent-id>
+/Volumes/stuff/Projects/kotlinmania/bin/ast_distance --assign tmp/tasks.json <agent-id>
 ```

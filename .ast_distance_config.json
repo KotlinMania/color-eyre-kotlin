@@ -1,5 +1,4 @@
 {
-  "type": "port",
   "name": "color-eyre-kotlin",
   "source": {
     "path": "tmp/color-eyre/src",

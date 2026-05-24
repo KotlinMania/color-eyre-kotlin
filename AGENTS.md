@@ -4,7 +4,8 @@ This file is the quick-reference operating contract for color-eyre-kotlin. The l
 project story lives in `CLAUDE.md`, `README.md`, and any repo-local notes. Read
 those before editing. This guide captures the workspace-wide porting discipline
 that must not drift: Kotlin stays Kotlin, source comments stay Kotlin-facing,
-and required port inventory is done with `ast_distance` when the repo ships it.
+and required port inventory is done with the workspace `ast_distance` when
+configured.
 
 ## What this repo is
 
@@ -21,15 +22,16 @@ Kotlin library when a `*-kotlin` sibling port exists or should exist.
 
 Check the repo before choosing a workflow.
 
-- **If `tools/ast_distance/` exists:** the repo is still in parity/porting
-  mode. Drift measurement is required, not optional. Use the repo's
-  `tools/ast_distance` binary/script to identify missing files, missing
-  functions, provenance/header drift, and cheat-detection failures before
-  choosing work and again at file or phase boundaries. Do not chase similarity
-  scores in the middle of translating a half-read file, and never Rustify
-  Kotlin to appease the tool.
-- **If `tools/ast_distance/` does not exist:** the repo has matured past the
-  structural-port phase and is optimizing for idiomatic Kotlin. Work like a
+- **If `.ast_distance_config.json` exists:** use the workspace canonical
+  `/Volumes/stuff/Projects/kotlinmania/bin/ast_distance` binary for drift
+  measurement. Local copies under `tools/ast_distance/` are not authoritative;
+  refresh them from the workspace binary before use. Use the tool to identify
+  missing files, missing functions, provenance/header drift, and cheat-detection
+  failures before choosing work and again at file or phase boundaries. Do not
+  chase similarity scores in the middle of translating a half-read file, and
+  never Rustify Kotlin to appease the tool.
+- **If `.ast_distance_config.json` does not exist:** the repo has matured past
+  the structural-port phase and is optimizing for idiomatic Kotlin. Work like a
   Kotlin maintainer: preserve behavior and public API intent, improve Kotlin
   shape when appropriate, and use the repo's tests/docs as the gate. Do not
   reintroduce Rust-shaped code or comments.
@@ -40,9 +42,10 @@ Check the repo before choosing a workflow.
 2. Confirm the upstream Rust source is present under the `tmp/` path named by
    `CLAUDE.md` or `.ast_distance_config.json`. Fetch it using the repo's helper
    if needed. Never edit it.
-3. If `tools/ast_distance/` exists, run the repo's `ast_distance --deep`
-   workflow before picking work. Use it as the required inventory for unported
-   files/functions and provenance drift.
+3. If `.ast_distance_config.json` exists, run the workspace
+   `/Volumes/stuff/Projects/kotlinmania/bin/ast_distance --deep` workflow before
+   picking work. Use it as the required inventory for unported files/functions
+   and provenance drift.
 4. Pick bottom-up work: dependencies before consumers, leaves before roots.
 5. Read the whole upstream `.rs` file before typing. If the file is too large,
    split the turn into "read" and "write"; never start from a half-read file.
@@ -335,11 +338,11 @@ Use the repo's documented Gradle tasks. Common gates include:
 ./gradlew wasmJsNodeTest
 ```
 
-In parity repos with `tools/ast_distance/`, also run the repo's deep scan, for
+In repos with `.ast_distance_config.json`, also run the workspace deep scan, for
 example:
 
 ```bash
-./tools/ast_distance/ast_distance --deep <upstream-root> rust <kotlin-source-root> kotlin
+/Volumes/stuff/Projects/kotlinmania/bin/ast_distance --deep <upstream-root> rust <kotlin-source-root> kotlin
 ```
 
 The exact paths come from `.ast_distance_config.json`, `CLAUDE.md`, or existing
