@@ -24,11 +24,25 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "datetime" }
 collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "collectionsImmutable" }
 
+once-cell-kotlin = { module = "io.github.kotlinmania:once-cell-kotlin", version = "0.1.0" }
+owo-colors-kotlin = { module = "io.github.kotlinmania:owo-colors-kotlin", version = "0.1.0" }
+url-kotlin = { module = "io.github.kotlinmania:url-kotlin", version = "0.1.0" }
+pretty-assertions-kotlin = { module = "io.github.kotlinmania:pretty-assertions-kotlin", version = "0.1.0" }
+thiserror-kotlin = { module = "io.github.kotlinmania:thiserror-kotlin", version = "0.1.0" }
+tracing-kotlin = { module = "io.github.kotlinmania:tracing-kotlin", version = "0.1.0" }
+tracing-subscriber-kotlin = { module = "io.github.kotlinmania:tracing-subscriber-kotlin", version = "0.1.0" }
 [bundles]
 color-eyre-commonMain = [
-  "kotlinx-coroutines-core",
-  "kotlinx-serialization-core",
-  "kotlinx-serialization-json",
-  "kotlinx-datetime",
-  "collections-immutable",
+    "kotlinx-coroutines-core",
+    "kotlinx-serialization-core",
+    "kotlinx-serialization-json",
+    "kotlinx-datetime",
+    "collections-immutable",
+    "once-cell-kotlin",
+    "owo-colors-kotlin",
+    "url-kotlin",
+    "pretty-assertions-kotlin",
+    "thiserror-kotlin",
+    "tracing-kotlin",
+    "tracing-subscriber-kotlin",
 ]
