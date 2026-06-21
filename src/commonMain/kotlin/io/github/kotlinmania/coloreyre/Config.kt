@@ -132,50 +132,52 @@ public data class Theme(
         /**
          * Returns a theme for dark backgrounds. This is the default.
          */
-        public fun dark(): Theme = Theme(
-            file = style().purple(),
-            lineNumber = style().purple(),
-            activeLine = style().white().bold(),
-            error = style().brightRed(),
-            helpInfoNote = style().brightCyan(),
-            helpInfoWarning = style().brightYellow(),
-            helpInfoSuggestion = style().brightCyan(),
-            helpInfoError = style().brightRed(),
-            dependencyCode = style().green(),
-            crateCode = style().brightRed(),
-            codeHash = style().brightBlack(),
-            panicHeader = style().red(),
-            panicMessage = style().cyan(),
-            panicFile = style().purple(),
-            panicLineNumber = style().purple(),
-            hiddenFrames = style().brightCyan(),
-            spantraceTarget = style().brightRed(),
-            spantraceFields = style().brightCyan(),
-        )
+        public fun dark(): Theme =
+            Theme(
+                file = style().purple(),
+                lineNumber = style().purple(),
+                activeLine = style().white().bold(),
+                error = style().brightRed(),
+                helpInfoNote = style().brightCyan(),
+                helpInfoWarning = style().brightYellow(),
+                helpInfoSuggestion = style().brightCyan(),
+                helpInfoError = style().brightRed(),
+                dependencyCode = style().green(),
+                crateCode = style().brightRed(),
+                codeHash = style().brightBlack(),
+                panicHeader = style().red(),
+                panicMessage = style().cyan(),
+                panicFile = style().purple(),
+                panicLineNumber = style().purple(),
+                hiddenFrames = style().brightCyan(),
+                spantraceTarget = style().brightRed(),
+                spantraceFields = style().brightCyan(),
+            )
 
         /**
          * Returns a theme for light backgrounds.
          */
-        public fun light(): Theme = Theme(
-            file = style().purple(),
-            lineNumber = style().purple(),
-            spantraceTarget = style().red(),
-            spantraceFields = style().blue(),
-            activeLine = style().bold(),
-            error = style().red(),
-            helpInfoNote = style().blue(),
-            helpInfoWarning = style().brightRed(),
-            helpInfoSuggestion = style().blue(),
-            helpInfoError = style().red(),
-            dependencyCode = style().green(),
-            crateCode = style().red(),
-            codeHash = style().brightBlack(),
-            panicHeader = style().red(),
-            panicMessage = style().blue(),
-            panicFile = style().purple(),
-            panicLineNumber = style().purple(),
-            hiddenFrames = style().blue(),
-        )
+        public fun light(): Theme =
+            Theme(
+                file = style().purple(),
+                lineNumber = style().purple(),
+                spantraceTarget = style().red(),
+                spantraceFields = style().blue(),
+                activeLine = style().bold(),
+                error = style().red(),
+                helpInfoNote = style().blue(),
+                helpInfoWarning = style().brightRed(),
+                helpInfoSuggestion = style().blue(),
+                helpInfoError = style().red(),
+                dependencyCode = style().green(),
+                crateCode = style().red(),
+                codeHash = style().brightBlack(),
+                panicHeader = style().red(),
+                panicMessage = style().blue(),
+                panicFile = style().purple(),
+                panicLineNumber = style().purple(),
+                hiddenFrames = style().blue(),
+            )
     }
 }
 
@@ -201,34 +203,36 @@ public data class Frame(
     public val filename: PathBuf? = null,
 ) {
     internal fun isDependencyCode(): Boolean {
-        val symbolPrefixes = listOf(
-            "std::",
-            "core::",
-            "backtrace::backtrace::",
-            "_rust_begin_unwind",
-            "color_traceback::",
-            "__rust_",
-            "___rust_",
-            "__pthread",
-            "_main",
-            "main",
-            "__scrt_common_main_seh",
-            "BaseThreadInitThunk",
-            "_start",
-            "__libc_start_main",
-            "start_thread",
-        )
+        val symbolPrefixes =
+            listOf(
+                "std::",
+                "core::",
+                "backtrace::backtrace::",
+                "_rust_begin_unwind",
+                "color_traceback::",
+                "__rust_",
+                "___rust_",
+                "__pthread",
+                "_main",
+                "main",
+                "__scrt_common_main_seh",
+                "BaseThreadInitThunk",
+                "_start",
+                "__libc_start_main",
+                "start_thread",
+            )
 
         if (name != null && symbolPrefixes.any { name.startsWith(it) }) {
             return true
         }
 
-        val filePrefixes = listOf(
-            "/rustc/",
-            "src/libstd/",
-            "src/libpanic_unwind/",
-            "src/libtest/",
-        )
+        val filePrefixes =
+            listOf(
+                "/rustc/",
+                "src/libstd/",
+                "src/libpanic_unwind/",
+                "src/libtest/",
+            )
         val path = filename?.toString()
         return path != null &&
             (filePrefixes.any { path.startsWith(it) } || path.contains("/.cargo/registry/src/"))
@@ -239,20 +243,21 @@ public data class Frame(
      * frame.
      */
     internal fun isPostPanicCode(): Boolean {
-        val symbolPrefixes = listOf(
-            "_rust_begin_unwind",
-            "rust_begin_unwind",
-            "core::result::unwrap_failed",
-            "core::option::expect_none_failed",
-            "core::panicking::panic_fmt",
-            "color_backtrace::create_panic_handler",
-            "std::panicking::begin_panic",
-            "begin_panic_fmt",
-            "failure::backtrace::Backtrace::new",
-            "backtrace::capture",
-            "failure::error_message::err_msg",
-            "<failure::error::Error as core::convert::From<F>>::from",
-        )
+        val symbolPrefixes =
+            listOf(
+                "_rust_begin_unwind",
+                "rust_begin_unwind",
+                "core::result::unwrap_failed",
+                "core::option::expect_none_failed",
+                "core::panicking::panic_fmt",
+                "color_backtrace::create_panic_handler",
+                "std::panicking::begin_panic",
+                "begin_panic_fmt",
+                "failure::backtrace::Backtrace::new",
+                "backtrace::capture",
+                "failure::error_message::err_msg",
+                "<failure::error::Error as core::convert::From<F>>::from",
+            )
         return name?.let { current -> symbolPrefixes.any { current.startsWith(it) } } ?: false
     }
 
@@ -261,11 +266,12 @@ public data class Frame(
      * language runtime.
      */
     internal fun isRuntimeInitCode(): Boolean {
-        val symbolPrefixes = listOf(
-            "std::rt::lang_start::",
-            "test::run_test::run_test_inner::",
-            "std::sys_common::backtrace::__rust_begin_short_backtrace",
-        )
+        val symbolPrefixes =
+            listOf(
+                "std::rt::lang_start::",
+                "test::run_test::run_test_inner::",
+                "std::sys_common::backtrace::__rust_begin_short_backtrace",
+            )
         val currentName = name ?: return false
         val currentFile = filename?.toString() ?: return false
 
@@ -281,33 +287,35 @@ private data class StyledFrame(
     private val frame: Frame,
     private val theme: Theme,
 ) {
-    override fun toString(): String = buildString {
-        val isDependencyCode = frame.isDependencyCode()
-        append(frame.n.toString().padStart(2))
-        append(": ")
+    override fun toString(): String =
+        buildString {
+            val isDependencyCode = frame.isDependencyCode()
+            append(frame.n.toString().padStart(2))
+            append(": ")
 
-        val rawName = frame.name ?: "<unknown>"
-        val hasHashSuffix = rawName.length > 19 &&
-            rawName.substring(rawName.length - 19, rawName.length - 16) == "::h" &&
-            rawName.substring(rawName.length - 16).all { it.isDigit() || it.lowercaseChar() in 'a'..'f' }
-        val hashSuffix = if (hasHashSuffix) rawName.substring(rawName.length - 19) else "<unknown>"
-        val displayName = if (hasHashSuffix) rawName.substring(0, rawName.length - 19) else rawName
+            val rawName = frame.name ?: "<unknown>"
+            val hasHashSuffix =
+                rawName.length > 19 &&
+                    rawName.substring(rawName.length - 19, rawName.length - 16) == "::h" &&
+                    rawName.substring(rawName.length - 16).all { it.isDigit() || it.lowercaseChar() in 'a'..'f' }
+            val hashSuffix = if (hasHashSuffix) rawName.substring(rawName.length - 19) else "<unknown>"
+            val displayName = if (hasHashSuffix) rawName.substring(0, rawName.length - 19) else rawName
 
-        append(if (isDependencyCode) theme.dependencyCode.style(displayName) else theme.crateCode.style(displayName))
-        append(theme.codeHash.style(hashSuffix))
+            append(if (isDependencyCode) theme.dependencyCode.style(displayName) else theme.crateCode.style(displayName))
+            append(theme.codeHash.style(hashSuffix))
 
-        val file = frame.filename?.toString() ?: "<unknown source file>"
-        val line = frame.lineno?.toString() ?: "<unknown line>"
-        append('\n')
-        append("    at ")
-        append(theme.file.style(file))
-        append(':')
-        append(theme.lineNumber.style(line))
+            val file = frame.filename?.toString() ?: "<unknown source file>"
+            val line = frame.lineno?.toString() ?: "<unknown line>"
+            append('\n')
+            append("    at ")
+            append(theme.file.style(file))
+            append(':')
+            append(theme.lineNumber.style(line))
 
-        if (libVerbosity() >= Verbosity.Full || panicVerbosity() >= Verbosity.Full) {
-            append(SourceSection(frame, theme))
+            if (libVerbosity() >= Verbosity.Full || panicVerbosity() >= Verbosity.Full) {
+                append(SourceSection(frame, theme))
+            }
         }
-    }
 }
 
 private data class SourceSection(
@@ -440,27 +448,29 @@ public data class HookBuilder(
      */
     public fun tryIntoHooks(): Result<Pair<PanicHook, EyreHook>> {
         val resolvedPanicMessage = panicMessage ?: DefaultPanicMessage(theme)
-        val panicHook = PanicHook(
-            filters = filters,
-            section = panicSection,
-            panicMessage = resolvedPanicMessage,
-            theme = theme,
-            captureSpanTraceByDefault = captureSpanTraceByDefault,
-            displayEnvSection = displayEnvSection,
-            issueUrl = issueUrl,
-            issueMetadata = issueMetadata,
-            issueFilter = issueFilter,
-        )
-        val eyreHook = EyreHook(
-            filters = panicHook.filters,
-            captureSpanTraceByDefault = captureSpanTraceByDefault,
-            displayEnvSection = displayEnvSection,
-            displayLocationSection = displayLocationSection,
-            theme = theme,
-            issueUrl = issueUrl,
-            issueMetadata = issueMetadata,
-            issueFilter = issueFilter,
-        )
+        val panicHook =
+            PanicHook(
+                filters = filters,
+                section = panicSection,
+                panicMessage = resolvedPanicMessage,
+                theme = theme,
+                captureSpanTraceByDefault = captureSpanTraceByDefault,
+                displayEnvSection = displayEnvSection,
+                issueUrl = issueUrl,
+                issueMetadata = issueMetadata,
+                issueFilter = issueFilter,
+            )
+        val eyreHook =
+            EyreHook(
+                filters = panicHook.filters,
+                captureSpanTraceByDefault = captureSpanTraceByDefault,
+                displayEnvSection = displayEnvSection,
+                displayLocationSection = displayLocationSection,
+                theme = theme,
+                issueUrl = issueUrl,
+                issueMetadata = issueMetadata,
+                issueFilter = issueFilter,
+            )
         return Result.success(panicHook to eyreHook)
     }
 
@@ -481,26 +491,33 @@ public data class HookBuilder(
 }
 
 internal fun defaultFrameFilter(frames: MutableList<Frame>) {
-    val topCutoff = frames.indexOfLast { it.isPostPanicCode() }
-        .let { if (it >= 0) it + 2 else 0 }
-    val bottomCutoff = frames.indexOfFirst { it.isRuntimeInitCode() }
-        .let { if (it >= 0) it else frames.size }
+    val topCutoff =
+        frames
+            .indexOfLast { it.isPostPanicCode() }
+            .let { if (it >= 0) it + 2 else 0 }
+    val bottomCutoff =
+        frames
+            .indexOfFirst { it.isRuntimeInitCode() }
+            .let { if (it >= 0) it else frames.size }
     frames.retainAll { it.n in topCutoff..bottomCutoff }
 }
 
 internal fun eyreFrameFilters(frames: MutableList<Frame>) {
-    val filters = listOf(
-        "<color_eyre::Handler as eyre::EyreHandler>::default",
-        "eyre::",
-        "color_eyre::",
-    )
+    val filters =
+        listOf(
+            "<color_eyre::Handler as eyre::EyreHandler>::default",
+            "eyre::",
+            "color_eyre::",
+        )
     frames.retainAll { frame ->
         val name = frame.name ?: return@retainAll true
         filters.none { name.startsWith(it) }
     }
 }
 
-private data class DefaultPanicMessage(private val theme: Theme) : PanicMessage {
+private data class DefaultPanicMessage(
+    private val theme: Theme,
+) : PanicMessage {
     override fun display(panicInfo: PanicInfo, out: Appendable) {
         out.appendLine(theme.panicHeader.style("The application panicked (crashed)."))
         val payload = panicInfo.payload ?: "<non string panic payload>"
@@ -522,42 +539,44 @@ public data class PanicReport(
 ) {
     override fun toString(): String = printPanicInfo(this)
 
-    internal fun render(): String = buildString {
-        hook.panicMessage.display(panicInfo, this)
-        val verbosity = panicVerbosity()
-        val captureBacktrace = verbosity != Verbosity.Minimal
+    internal fun render(): String =
+        buildString {
+            hook.panicMessage.display(panicInfo, this)
+            val verbosity = panicVerbosity()
+            val captureBacktrace = verbosity != Verbosity.Minimal
 
-        hook.section?.let {
-            append("\n\n")
-            append(it)
-        }
+            hook.section?.let {
+                append("\n\n")
+                append(it)
+            }
 
-        spanTrace?.let {
-            append("\n\n")
-            append(FormattedSpanTrace(it))
-        }
+            spanTrace?.let {
+                append("\n\n")
+                append(FormattedSpanTrace(it))
+            }
 
-        backtrace?.let {
-            append("\n\n")
-            append(hook.formatBacktrace(it))
-        }
+            backtrace?.let {
+                append("\n\n")
+                append(hook.formatBacktrace(it))
+            }
 
-        if (hook.displayEnvSection) {
-            append("\n\n")
-            append(EnvSection(captureBacktrace, spanTrace))
-        }
+            if (hook.displayEnvSection) {
+                append("\n\n")
+                append(EnvSection(captureBacktrace, spanTrace))
+            }
 
-        val url = hook.issueUrl
-        if (url != null && hook.issueFilter.filter(ErrorKind.NonRecoverable(panicInfo.payload))) {
-            append("\n\n")
-            append(
-                io.github.kotlinmania.coloreyre.section.github.IssueSection(url, panicInfo.payload ?: "")
-                    .withBacktrace(backtrace)
-                    .withLocation(panicInfo.location)
-                    .withMetadata(hook.issueMetadata),
-            )
+            val url = hook.issueUrl
+            if (url != null && hook.issueFilter.filter(ErrorKind.NonRecoverable(panicInfo.payload))) {
+                append("\n\n")
+                append(
+                    io.github.kotlinmania.coloreyre.section.github
+                        .IssueSection(url, panicInfo.payload ?: "")
+                        .withBacktrace(backtrace)
+                        .withLocation(panicInfo.location)
+                        .withMetadata(hook.issueMetadata),
+                )
+            }
         }
-    }
 }
 
 internal fun printPanicInfo(report: PanicReport): String = report.render()
@@ -628,11 +647,12 @@ public data class EyreHook(
 ) {
     internal fun default(error: Throwable): Handler {
         val backtrace = if (libVerbosity() != Verbosity.Minimal) Backtrace.new() else null
-        val spanTrace = if (spantraceCaptureEnabled() && getDeepestSpantrace(error) == null) {
-            SpanTrace.capture()
-        } else {
-            null
-        }
+        val spanTrace =
+            if (spantraceCaptureEnabled() && getDeepestSpantrace(error) == null) {
+                SpanTrace.capture()
+            } else {
+                null
+            }
         return Handler(
             filters = filters,
             backtrace = backtrace,
@@ -670,49 +690,51 @@ internal data class BacktraceFormatter(
     internal val inner: Backtrace,
     internal val theme: Theme,
 ) {
-    override fun toString(): String = buildString {
-        append(" BACKTRACE ".center(80, '-'))
-        val frames = inner.frames().flatMapIndexed { index, frame ->
-            frame.symbols().map { symbol ->
-                Frame(
-                    name = symbol.name(),
-                    lineno = symbol.lineno(),
-                    filename = symbol.filename(),
-                    n = index + 1,
-                )
+    override fun toString(): String =
+        buildString {
+            append(" BACKTRACE ".center(80, '-'))
+            val frames =
+                inner.frames().flatMapIndexed { index, frame ->
+                    frame.symbols().map { symbol ->
+                        Frame(
+                            name = symbol.name(),
+                            lineno = symbol.lineno(),
+                            filename = symbol.filename(),
+                            n = index + 1,
+                        )
+                    }
+                }
+            val filteredFrames = frames.toMutableList()
+            when (Env.varOrNull("COLORBT_SHOW_HIDDEN")) {
+                "1", "on", "y" -> Unit
+                else -> filters.forEach { it.filter(filteredFrames) }
             }
-        }
-        val filteredFrames = frames.toMutableList()
-        when (Env.varOrNull("COLORBT_SHOW_HIDDEN")) {
-            "1", "on", "y" -> Unit
-            else -> filters.forEach { it.filter(filteredFrames) }
-        }
 
-        if (filteredFrames.isEmpty()) {
-            append("\n<empty backtrace>")
-            return@buildString
-        }
+            if (filteredFrames.isEmpty()) {
+                append("\n<empty backtrace>")
+                return@buildString
+            }
 
-        filteredFrames.sortBy { it.n }
-        var lastN = 0
-        for (frame in filteredFrames) {
-            val frameDelta = frame.n - lastN - 1
-            if (frameDelta != 0) {
+            filteredFrames.sortBy { it.n }
+            var lastN = 0
+            for (frame in filteredFrames) {
+                val frameDelta = frame.n - lastN - 1
+                if (frameDelta != 0) {
+                    append('\n')
+                    append(theme.hiddenFrames.style(hiddenFrames(frameDelta)).center(80, ' '))
+                }
                 append('\n')
-                append(theme.hiddenFrames.style(hiddenFrames(frameDelta)).center(80, ' '))
+                append(StyledFrame(frame, theme))
+                lastN = frame.n
             }
-            append('\n')
-            append(StyledFrame(frame, theme))
-            lastN = frame.n
-        }
 
-        val lastFilteredN = filteredFrames.last().n
-        val lastUnfilteredN = frames.last().n
-        if (lastFilteredN < lastUnfilteredN) {
-            append('\n')
-            append(theme.hiddenFrames.style(hiddenFrames(lastUnfilteredN - lastFilteredN)).center(80, ' '))
+            val lastFilteredN = filteredFrames.last().n
+            val lastUnfilteredN = frames.last().n
+            if (lastFilteredN < lastUnfilteredN) {
+                append('\n')
+                append(theme.hiddenFrames.style(hiddenFrames(lastUnfilteredN - lastFilteredN)).center(80, ' '))
+            }
         }
-    }
 }
 
 private fun hiddenFrames(n: Int): String {
@@ -726,17 +748,19 @@ internal enum class Verbosity {
     Full,
 }
 
-internal fun panicVerbosity(): Verbosity = when (val value = Env.varOrNull("RUST_BACKTRACE")) {
-    "full" -> Verbosity.Full
-    null, "0" -> Verbosity.Minimal
-    else -> Verbosity.Medium
-}
+internal fun panicVerbosity(): Verbosity =
+    when (val value = Env.varOrNull("RUST_BACKTRACE")) {
+        "full" -> Verbosity.Full
+        null, "0" -> Verbosity.Minimal
+        else -> Verbosity.Medium
+    }
 
-internal fun libVerbosity(): Verbosity = when (val value = Env.varOrNull("RUST_LIB_BACKTRACE") ?: Env.varOrNull("RUST_BACKTRACE")) {
-    "full" -> Verbosity.Full
-    null, "0" -> Verbosity.Minimal
-    else -> Verbosity.Medium
-}
+internal fun libVerbosity(): Verbosity =
+    when (val value = Env.varOrNull("RUST_LIB_BACKTRACE") ?: Env.varOrNull("RUST_BACKTRACE")) {
+        "full" -> Verbosity.Full
+        null, "0" -> Verbosity.Minimal
+        else -> Verbosity.Medium
+    }
 
 /**
  * Callback for filtering a vector of frames.

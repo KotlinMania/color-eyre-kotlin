@@ -74,17 +74,19 @@ internal fun Handler.debug(error: Throwable, alternate: Boolean = false): String
 
         val url = issueUrl
         if (url != null && issueFilter.filter(ErrorKind.Recoverable(error))) {
-            val payload = buildString {
-                append("Error: ")
-                for ((n, currentError) in errors.withIndex()) {
-                    appendLine()
-                    append(" ".repeat(n))
-                    append(currentError.message ?: currentError.toString())
+            val payload =
+                buildString {
+                    append("Error: ")
+                    for ((n, currentError) in errors.withIndex()) {
+                        appendLine()
+                        append(" ".repeat(n))
+                        append(currentError.message ?: currentError.toString())
+                    }
                 }
-            }
             separated.ready {
                 append(
-                    io.github.kotlinmania.coloreyre.section.github.IssueSection(url, payload)
+                    io.github.kotlinmania.coloreyre.section.github
+                        .IssueSection(url, payload)
                         .withBacktrace(backtrace)
                         .withMetadata(issueMetadata)
                         .withSpanTrace(currentSpanTrace),
@@ -99,7 +101,7 @@ internal fun Handler.trackCaller(location: Location) {
 }
 
 internal fun getDeepestSpantrace(error: Throwable): SpanTrace? =
-    error.chain()
+    error
+        .chain()
         .asReversed()
         .firstNotNullOfOrNull { it.spanTraceOrNull() }
-

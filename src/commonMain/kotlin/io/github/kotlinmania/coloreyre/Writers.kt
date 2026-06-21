@@ -68,6 +68,7 @@ internal fun Appendable.header(header: Any): HeaderWriter<Any, Appendable> =
 
 internal interface DisplayExt {
     fun withHeader(header: Any): Header<DisplayExt, Any> = Header(this, header)
+
     fun withFooter(footer: Any): Footer<DisplayExt, Any> = Footer(this, footer)
 }
 
@@ -83,9 +84,7 @@ internal class FooterWriter<W : Appendable>(
         return this
     }
 
-    override fun append(value: CharSequence?, startIndex: Int, endIndex: Int): Appendable {
-        return append(value?.subSequence(startIndex, endIndex))
-    }
+    override fun append(value: CharSequence?, startIndex: Int, endIndex: Int): Appendable = append(value?.subSequence(startIndex, endIndex))
 
     override fun append(value: Char): Appendable {
         hadOutput = true
@@ -135,13 +134,14 @@ internal data class EnvSection(
     internal val btCaptured: Boolean,
     internal val spanTrace: SpanTrace?,
 ) {
-    override fun toString(): String = buildString {
-        val verbosity = if (PanicRuntime.panicking()) panicVerbosity() else libVerbosity()
-        append(BacktraceOmitted(!btCaptured))
-        val separated = HeaderedStringBuilder(this, "\n")
-        separated.ready { append(SourceSnippets(verbosity)) }
-        separated.ready { append(SpanTraceOmitted(spanTrace)) }
-    }
+    override fun toString(): String =
+        buildString {
+            val verbosity = if (PanicRuntime.panicking()) panicVerbosity() else libVerbosity()
+            append(BacktraceOmitted(!btCaptured))
+            val separated = HeaderedStringBuilder(this, "\n")
+            separated.ready { append(SourceSnippets(verbosity)) }
+            separated.ready { append(SpanTraceOmitted(spanTrace)) }
+        }
 }
 
 private data class SpanTraceOmitted(
@@ -177,4 +177,3 @@ private data class SourceSnippets(
             ""
         }
 }
-

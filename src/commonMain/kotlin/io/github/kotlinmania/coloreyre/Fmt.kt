@@ -18,4 +18,3 @@ internal data class LocationSection(
         }
     }
 }
-

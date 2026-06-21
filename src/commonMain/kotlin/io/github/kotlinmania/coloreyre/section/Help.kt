@@ -64,25 +64,44 @@ public fun Handler.suppressBacktrace(suppress: Boolean): Handler {
 }
 
 internal sealed class HelpInfo {
-    data class Error(val error: Throwable, val theme: Theme) : HelpInfo()
-    data class Custom(val section: Any) : HelpInfo()
-    data class Note(val note: Any, val theme: Theme) : HelpInfo()
-    data class Warning(val warning: Any, val theme: Theme) : HelpInfo()
-    data class Suggestion(val suggestion: Any, val theme: Theme) : HelpInfo()
+    data class Error(
+        val error: Throwable,
+        val theme: Theme,
+    ) : HelpInfo()
 
-    override fun toString(): String = when (this) {
-        is Note -> "${theme.helpInfoNote.style("Note")}: $note"
-        is Warning -> "${theme.helpInfoWarning.style("Warning")}: $warning"
-        is Suggestion -> "${theme.helpInfoSuggestion.style("Suggestion")}: $suggestion"
-        is Custom -> section.toString()
-        is Error -> buildString {
-            append("Error:")
-            for ((n, currentError) in error.chain().withIndex()) {
-                appendLine()
-                append(" ".repeat(n))
-                append(theme.helpInfoError.style(currentError.message ?: currentError.toString()))
-            }
+    data class Custom(
+        val section: Any,
+    ) : HelpInfo()
+
+    data class Note(
+        val note: Any,
+        val theme: Theme,
+    ) : HelpInfo()
+
+    data class Warning(
+        val warning: Any,
+        val theme: Theme,
+    ) : HelpInfo()
+
+    data class Suggestion(
+        val suggestion: Any,
+        val theme: Theme,
+    ) : HelpInfo()
+
+    override fun toString(): String =
+        when (this) {
+            is Note -> "${theme.helpInfoNote.style("Note")}: $note"
+            is Warning -> "${theme.helpInfoWarning.style("Warning")}: $warning"
+            is Suggestion -> "${theme.helpInfoSuggestion.style("Suggestion")}: $suggestion"
+            is Custom -> section.toString()
+            is Error ->
+                buildString {
+                    append("Error:")
+                    for ((n, currentError) in error.chain().withIndex()) {
+                        appendLine()
+                        append(" ".repeat(n))
+                        append(theme.helpInfoError.style(currentError.message ?: currentError.toString()))
+                    }
+                }
         }
-    }
 }
-

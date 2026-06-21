@@ -23,4 +23,3 @@ public data class Handler(
 ) {
     override fun toString(): String = "redacted"
 }
-
