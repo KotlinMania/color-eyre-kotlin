@@ -513,7 +513,7 @@ public class HookBuilder internal constructor(
     }
 }
 
-internal fun defaultFrameFilter(frames: MutableList<Frame>) {
+internal fun defaultFrameFilter(frames: FrameList) {
     val topCutoff =
         frames
             .indexOfLast { it.isPostPanicCode() }
@@ -525,7 +525,7 @@ internal fun defaultFrameFilter(frames: MutableList<Frame>) {
     frames.retainAll { it.n in topCutoff..bottomCutoff }
 }
 
-internal fun eyreFrameFilters(frames: MutableList<Frame>) {
+internal fun eyreFrameFilters(frames: FrameList) {
     val filters =
         listOf(
             "<color_eyre::Handler as eyre::EyreHandler>::default",
@@ -724,7 +724,7 @@ internal data class BacktraceFormatter(
             val filteredFrames = frames.toMutableList()
             when (Env.varOrNull("COLORBT_SHOW_HIDDEN")) {
                 "1", "on", "y" -> Unit
-                else -> filters.forEach { it.filter(filteredFrames) }
+                else -> filters.forEach { it.filter(FrameList(filteredFrames)) }
             }
 
             if (filteredFrames.isEmpty()) {
@@ -779,11 +779,13 @@ internal fun libVerbosity(): Verbosity =
         else -> Verbosity.Medium
     }
 
+public class FrameList(private val list: MutableList<Frame> = mutableListOf()) : MutableList<Frame> by list
+
 /**
  * Callback for filtering a vector of frames.
  */
 public fun interface FilterCallback {
-    public fun filter(frames: MutableList<Frame>)
+    public fun filter(frames: FrameList)
 }
 
 /**
