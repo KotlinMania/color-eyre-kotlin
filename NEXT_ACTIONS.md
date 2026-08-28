@@ -5,9 +5,9 @@ Based on AST analysis, here are the concrete next steps.
 ## Summary
 
 - **Files Present:** 9/9 (100.0%)
-- **Function parity:** 63/73 matched (target 116) — 86.3%
-- **Class/type parity:** 36/43 matched (target 46) — 83.7%
-- **Combined symbol parity:** 99/116 matched (target 162) — 85.3%
+- **Function parity:** 63/73 matched (target 120) — 86.3%
+- **Class/type parity:** 36/43 matched (target 48) — 83.7%
+- **Combined symbol parity:** 99/116 matched (target 168) — 85.3%
 - **Average inline-code cosine:** 0.49 (function body across 8 matched files)
 - **Average documentation cosine:** 0.44 (doc text across 8 matched files)
 - **Cheat-zeroed Files:** 1
@@ -33,20 +33,20 @@ Every matched file is listed below with function and type symbol parity.
 - **Similarity:** 0.33
 - **Dependents:** 0
 - **Priority Score:** 51906.7
-- **Functions:** 5/7 matched (target 22)
+- **Functions:** 5/7 matched (target 24)
 - **Missing functions:** `write_str`, `fmt`
-- **Types:** 9/12 matched (target 11)
+- **Types:** 9/12 matched
 - **Missing types:** `WriterExt`, `SpanTraceOmited`, `BacktraceOmited`
 
 ### 2. config
 
 - **Target:** `coloreyre.Config`
-- **Similarity:** 0.62
+- **Similarity:** 0.61
 - **Dependents:** 0
-- **Priority Score:** 44903.8
-- **Functions:** 33/35 matched (target 61)
+- **Priority Score:** 44903.9
+- **Functions:** 33/35 matched (target 63)
 - **Missing functions:** `fmt`, `from`
-- **Types:** 12/14 matched (target 12)
+- **Types:** 12/14 matched (target 13)
 - **Missing types:** `FilterCallback`, `IssueFilterCallback`
 
 ### 3. section.github
@@ -135,12 +135,3 @@ For each file to be considered "complete":
 - Documentation ported
 - port-lint header present
 
-## Next Commands
-
-```bash
-# Initialize task queue for systematic porting
-/Volumes/stuff/Projects/kotlinmania/bin/ast_distance --init-tasks tmp/color-eyre/src rust src/commonMain/kotlin/io/github/kotlinmania/coloreyre kotlin tmp/tasks.json AGENTS.md
-
-# Get next high-priority task
-/Volumes/stuff/Projects/kotlinmania/bin/ast_distance --assign tmp/tasks.json <agent-id>
-```
