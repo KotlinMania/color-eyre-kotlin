@@ -608,10 +608,7 @@ public data class PanicHook(
         PanicRuntime.setHook(intoPanicHook())
     }
 
-    /**
-     * Convert self into the type expected by the panic runtime.
-     */
-    public fun intoPanicHook(): (PanicInfo) -> Unit = { panicInfo ->
+    internal fun intoPanicHook(): (PanicInfo) -> Unit = { panicInfo ->
         Console.errLine(panicReport(panicInfo).toString())
     }
 
@@ -677,10 +674,7 @@ public data class EyreHook(
      */
     public fun install(): Result<Unit> = EyreRuntime.setHook(intoEyreHook())
 
-    /**
-     * Convert self into the boxed type expected by the eyre hook registry.
-     */
-    public fun intoEyreHook(): HookFunc = { error -> default(error) }
+    internal fun intoEyreHook(): HookFunc = { error -> default(error) }
 }
 
 internal typealias HookFunc = (Throwable) -> Handler
