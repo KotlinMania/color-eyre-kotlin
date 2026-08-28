@@ -108,6 +108,29 @@ internal data class Footer<B, H>(
     }
 }
 
+internal fun Any.header(header: Any): Header<Any, Any> = Header(this, header)
+
+internal class HeaderedStringBuilder(
+    private val builder: StringBuilder,
+    private val separator: String,
+) {
+    private var first = true
+
+    fun ready(block: StringBuilder.() -> Unit) {
+        val temp = StringBuilder()
+        temp.block()
+        val str = temp.toString()
+        if (str.isNotEmpty()) {
+            if (!first) {
+                builder.append(separator)
+            } else {
+                first = false
+            }
+            builder.append(str)
+        }
+    }
+}
+
 internal data class Header<B, H>(
     private val body: B,
     private val h: H,

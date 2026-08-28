@@ -3,6 +3,7 @@ package io.github.kotlinmania.coloreyre.section
 
 import io.github.kotlinmania.coloreyre.Handler
 import io.github.kotlinmania.coloreyre.Theme
+import io.github.kotlinmania.coloreyre.chain
 
 /**
  * Provides an extension trait for attaching sections to error reports.
@@ -63,7 +64,7 @@ public fun Handler.suppressBacktrace(suppress: Boolean): Handler {
     return this
 }
 
-internal sealed class HelpInfo {
+public sealed class HelpInfo {
     data class Error(
         val error: Throwable,
         val theme: Theme,
