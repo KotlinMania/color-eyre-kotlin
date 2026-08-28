@@ -515,14 +515,14 @@ public class HookBuilder internal constructor(
 
 internal fun defaultFrameFilter(frames: FrameList) {
     val topCutoff =
-        frames
+        frames.frames
             .indexOfLast { it.isPostPanicCode() }
             .let { if (it >= 0) it + 2 else 0 }
     val bottomCutoff =
-        frames
+        frames.frames
             .indexOfFirst { it.isRuntimeInitCode() }
-            .let { if (it >= 0) it else frames.size }
-    frames.retainAll { it.n in topCutoff..bottomCutoff }
+            .let { if (it >= 0) it else frames.frames.size }
+    frames.frames.retainAll { it.n in topCutoff..bottomCutoff }
 }
 
 internal fun eyreFrameFilters(frames: FrameList) {
@@ -532,7 +532,7 @@ internal fun eyreFrameFilters(frames: FrameList) {
             "eyre::",
             "color_eyre::",
         )
-    frames.retainAll { frame ->
+    frames.frames.retainAll { frame ->
         val name = frame.name ?: return@retainAll true
         filters.none { name.startsWith(it) }
     }
@@ -779,7 +779,7 @@ internal fun libVerbosity(): Verbosity =
         else -> Verbosity.Medium
     }
 
-public class FrameList(private val list: MutableList<Frame> = mutableListOf()) : MutableList<Frame> by list
+public class FrameList(public val frames: MutableList<Frame> = mutableListOf())
 
 /**
  * Callback for filtering a vector of frames.
