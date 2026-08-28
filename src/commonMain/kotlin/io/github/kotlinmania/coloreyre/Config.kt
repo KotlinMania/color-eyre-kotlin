@@ -352,7 +352,7 @@ private data class SourceSection(
  * Builder for customizing the behavior of the global panic and error report
  * hooks.
  */
-public data class HookBuilder(
+public class HookBuilder internal constructor(
     private val filters: List<FilterCallback> = emptyList(),
     private val captureSpanTraceByDefault: Boolean = false,
     private val displayEnvSection: Boolean = true,
@@ -364,6 +364,29 @@ public data class HookBuilder(
     private val issueMetadata: List<Pair<String, Any>> = emptyList(),
     private val issueFilter: IssueFilterCallback = IssueFilterCallback { true },
 ) {
+    private fun copy(
+        filters: List<FilterCallback> = this.filters,
+        captureSpanTraceByDefault: Boolean = this.captureSpanTraceByDefault,
+        displayEnvSection: Boolean = this.displayEnvSection,
+        displayLocationSection: Boolean = this.displayLocationSection,
+        panicSection: Any? = this.panicSection,
+        panicMessage: PanicMessage? = this.panicMessage,
+        theme: Theme = this.theme,
+        issueUrl: String? = this.issueUrl,
+        issueMetadata: List<Pair<String, Any>> = this.issueMetadata,
+        issueFilter: IssueFilterCallback = this.issueFilter,
+    ): HookBuilder = HookBuilder(
+        filters = filters,
+        captureSpanTraceByDefault = captureSpanTraceByDefault,
+        displayEnvSection = displayEnvSection,
+        displayLocationSection = displayLocationSection,
+        panicSection = panicSection,
+        panicMessage = panicMessage,
+        theme = theme,
+        issueUrl = issueUrl,
+        issueMetadata = issueMetadata,
+        issueFilter = issueFilter,
+    )
     /**
      * Set the global styles that color-eyre should use.
      */
@@ -584,7 +607,7 @@ internal fun printPanicInfo(report: PanicReport): String = report.render()
 /**
  * A panic reporting hook.
  */
-public data class PanicHook(
+public class PanicHook internal constructor(
     internal val filters: List<FilterCallback>,
     internal val section: Any?,
     internal val panicMessage: PanicMessage,
@@ -632,7 +655,7 @@ public data class PanicHook(
 /**
  * An eyre reporting hook used to construct eyre handlers.
  */
-public data class EyreHook(
+public class EyreHook internal constructor(
     internal val filters: List<FilterCallback>,
     private val captureSpanTraceByDefault: Boolean,
     private val displayEnvSection: Boolean,

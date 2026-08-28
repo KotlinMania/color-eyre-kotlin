@@ -7,7 +7,7 @@ import io.github.kotlinmania.coloreyre.section.HelpInfo
  * A custom handler type for eyre reports which provides colorful error reports
  * and tracing-error support.
  */
-public data class Handler(
+public class Handler internal constructor(
     internal val filters: List<FilterCallback>,
     internal val backtrace: Backtrace?,
     internal var suppressBacktrace: Boolean,
