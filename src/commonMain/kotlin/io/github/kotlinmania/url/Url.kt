@@ -1,6 +1,6 @@
 package io.github.kotlinmania.url
 
-public object Url {
+internal object Url {
     public fun withParams(url: String, params: List<Pair<String, String>>): String {
         if (params.isEmpty()) return url
         val query = params.joinToString("&") { (k, v) ->
