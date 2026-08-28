@@ -27,13 +27,13 @@ public class SpanTrace(private val status: SpanTraceStatus = SpanTraceStatus.Cap
     }
 }
 
-public object PanicRuntime {
-    public fun panicking(): Boolean = false
-    public fun setHook(hook: (PanicInfo) -> Unit) {}
+internal object PanicRuntime {
+    fun panicking(): Boolean = false
+    fun setHook(hook: (PanicInfo) -> Unit) {}
 }
 
-public object Console {
-    public fun errLine(message: String) {
+internal object Console {
+    fun errLine(message: String) {
         println(message)
     }
 }
@@ -70,16 +70,16 @@ public class Backtrace(
     }
 }
 
-public object Env {
-    public fun varOrNull(name: String): String? = null
+internal object Env {
+    fun varOrNull(name: String): String? = null
 }
 
-public object EyreRuntime {
-    public fun setHook(hook: HookFunc): Result<Unit> = Result.success(Unit)
+internal object EyreRuntime {
+    fun setHook(hook: HookFunc): Result<Unit> = Result.success(Unit)
 }
 
-public object SourceLookup {
-    public fun linesAround(file: Any?, line: UInt, before: Int, after: Int): List<Pair<String, UInt>> = emptyList()
+internal object SourceLookup {
+    fun linesAround(file: Any?, line: UInt, before: Int, after: Int): List<Pair<String, UInt>> = emptyList()
 }
 
 public fun String.center(width: Int, fillChar: Char = ' '): String {
