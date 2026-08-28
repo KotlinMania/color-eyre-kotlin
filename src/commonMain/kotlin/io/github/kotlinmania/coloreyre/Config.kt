@@ -779,7 +779,13 @@ internal fun libVerbosity(): Verbosity =
         else -> Verbosity.Medium
     }
 
-public class FrameList(public val frames: MutableList<Frame> = mutableListOf())
+public class FrameList internal constructor(
+    internal val frames: MutableList<Frame> = mutableListOf(),
+) {
+    public constructor() : this(mutableListOf())
+    public val size: Int get() = frames.size
+    public operator fun get(index: Int): Frame = frames[index]
+}
 
 /**
  * Callback for filtering a vector of frames.
