@@ -6,6 +6,14 @@ import io.github.kotlinmania.coloreyre.Theme
 import io.github.kotlinmania.coloreyre.chain
 
 /**
+ * The return type of [Section] methods after adding context.
+ *
+ * This is the Kotlin equivalent of the associated return type in the upstream
+ * Rust crate's section trait implementation.
+ */
+public typealias Return = Any
+
+/**
  * Provides an extension trait for attaching sections to error reports.
  */
 

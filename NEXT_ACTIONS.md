@@ -5,11 +5,11 @@ Based on AST analysis, here are the concrete next steps.
 ## Summary
 
 - **Files Present:** 9/9 (100.0%)
-- **Function parity:** 63/73 matched (target 120) — 86.3%
-- **Class/type parity:** 36/43 matched (target 48) — 83.7%
-- **Combined symbol parity:** 99/116 matched (target 168) — 85.3%
+- **Function parity:** 65/73 matched (target 128) — 89.0%
+- **Class/type parity:** 40/43 matched (target 51) — 93.0%
+- **Combined symbol parity:** 105/116 matched (target 179) — 90.5%
 - **Average inline-code cosine:** 0.49 (function body across 8 matched files)
-- **Average documentation cosine:** 0.44 (doc text across 8 matched files)
+- **Average documentation cosine:** 0.41 (doc text across 8 matched files)
 - **Cheat-zeroed Files:** 1
 - **Critical Issues:** 6 files with <0.60 function similarity
 
@@ -27,49 +27,49 @@ No missing high-value files detected.
 
 Every matched file is listed below with function and type symbol parity.
 
-### 1. writers
+### 1. config
+
+- **Target:** `coloreyre.Config`
+- **Similarity:** 0.63
+- **Dependents:** 0
+- **Priority Score:** 34903.7
+- **Functions:** 34/35 matched (target 70)
+- **Missing functions:** `fmt`
+- **Types:** 12/14 matched
+- **Missing types:** `FilterCallback`, `IssueFilterCallback`
+
+### 2. writers
 
 - **Target:** `coloreyre.Writers`
 - **Similarity:** 0.33
 - **Dependents:** 0
-- **Priority Score:** 51906.7
+- **Priority Score:** 31906.7
 - **Functions:** 5/7 matched (target 24)
 - **Missing functions:** `write_str`, `fmt`
-- **Types:** 9/12 matched
-- **Missing types:** `WriterExt`, `SpanTraceOmited`, `BacktraceOmited`
-
-### 2. config
-
-- **Target:** `coloreyre.Config`
-- **Similarity:** 0.61
-- **Dependents:** 0
-- **Priority Score:** 44903.9
-- **Functions:** 33/35 matched (target 63)
-- **Missing functions:** `fmt`, `from`
-- **Types:** 12/14 matched (target 13)
-- **Missing types:** `FilterCallback`, `IssueFilterCallback`
+- **Types:** 11/12 matched
+- **Missing types:** `WriterExt`
 
 ### 3. section.github
 
 - **Target:** `section.Github`
-- **Similarity:** 0.37
+- **Similarity:** 0.43
 - **Dependents:** 0
-- **Priority Score:** 31506.3
-- **Functions:** 6/8 matched (target 10)
-- **Missing functions:** `new`, `fmt`
-- **Types:** 6/7 matched (target 6)
-- **Missing types:** `Display`
+- **Priority Score:** 11505.7
+- **Functions:** 7/8 matched (target 11)
+- **Missing functions:** `fmt`
+- **Types:** 7/7 matched
+- **Missing types:** _none_
 
 ### 4. section.help
 
 - **Target:** `section.Help`
 - **Similarity:** 0.30
 - **Dependents:** 0
-- **Priority Score:** 21407.0
+- **Priority Score:** 11407.0
 - **Functions:** 11/12 matched
 - **Missing functions:** `fmt`
-- **Types:** 1/2 matched (target 6)
-- **Missing types:** `Return`
+- **Types:** 2/2 matched (target 7)
+- **Missing types:** _none_
 
 ### 5. handler
 

@@ -75,7 +75,19 @@ internal object Env {
 }
 
 internal object EyreRuntime {
-    fun setHook(hook: HookFunc): Result<Unit> = Result.success(Unit)
+    private var hookInstalled: Boolean = false
+
+    fun setHook(hook: HookFunc): Result<Unit> {
+        if (hookInstalled) {
+            return Result.failure(IllegalStateException("an error report handler has already been installed"))
+        }
+        hookInstalled = true
+        return Result.success(Unit)
+    }
+
+    internal fun reset() {
+        hookInstalled = false
+    }
 }
 
 internal object SourceLookup {
