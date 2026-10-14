@@ -160,14 +160,14 @@ internal data class EnvSection(
     override fun toString(): String =
         buildString {
             val verbosity = if (PanicRuntime.panicking()) panicVerbosity() else libVerbosity()
-            append(BacktraceOmitted(!btCaptured))
+            append(BacktraceOmited(!btCaptured))
             val separated = HeaderedStringBuilder(this, "\n")
             separated.ready { append(SourceSnippets(verbosity)) }
-            separated.ready { append(SpanTraceOmitted(spanTrace)) }
+            separated.ready { append(SpanTraceOmited(spanTrace)) }
         }
 }
 
-private data class SpanTraceOmitted(
+private data class SpanTraceOmited(
     private val spanTrace: SpanTrace?,
 ) {
     override fun toString(): String {
@@ -179,7 +179,7 @@ private data class SpanTraceOmitted(
     }
 }
 
-private data class BacktraceOmitted(
+private data class BacktraceOmited(
     private val omitted: Boolean,
 ) {
     override fun toString(): String =

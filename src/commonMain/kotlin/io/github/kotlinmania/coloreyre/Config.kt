@@ -182,6 +182,51 @@ public data class Theme(
 }
 
 /**
+ * A theme used by the span trace renderer for styling span traces.
+ *
+ * This is the Kotlin equivalent of the span trace theme type in the upstream
+ * Rust crate. It carries only the five style fields that span trace rendering
+ * uses.
+ */
+public data class SpantraceTheme(
+    public val file: Style = Style(),
+    public val lineNumber: Style = Style(),
+    public val target: Style = Style(),
+    public val fields: Style = Style(),
+    public val activeLine: Style = Style(),
+) {
+    public fun file(style: Style): SpantraceTheme = copy(file = style)
+
+    public fun lineNumber(style: Style): SpantraceTheme = copy(lineNumber = style)
+
+    public fun target(style: Style): SpantraceTheme = copy(target = style)
+
+    public fun fields(style: Style): SpantraceTheme = copy(fields = style)
+
+    public fun activeLine(style: Style): SpantraceTheme = copy(activeLine = style)
+
+    public companion object {
+        public fun new(): SpantraceTheme = SpantraceTheme()
+    }
+}
+
+/**
+ * Convert a color-eyre [Theme] into a [SpantraceTheme], mapping the five
+ * span-trace-relevant style fields.
+ *
+ * This is the Kotlin equivalent of the theme conversion in the upstream Rust
+ * crate that maps the five span-trace-relevant style fields.
+ */
+public fun from(src: Theme): SpantraceTheme =
+    SpantraceTheme
+        .new()
+        .file(src.file)
+        .lineNumber(src.lineNumber)
+        .target(src.spantraceTarget)
+        .fields(src.spantraceFields)
+        .activeLine(src.activeLine)
+
+/**
  * A representation of a frame from a backtrace or span trace.
  */
 public data class Frame(
@@ -449,7 +494,10 @@ public class HookBuilder internal constructor(
      */
     public fun install(): Result<Unit> {
         val (panicHook, eyreHook) = tryIntoHooks().getOrThrow()
-        eyreHook.install().getOrThrow()
+        val eyreResult = eyreHook.install()
+        if (eyreResult.isFailure) {
+            return eyreResult
+        }
         panicHook.install()
         return Result.success(Unit)
     }

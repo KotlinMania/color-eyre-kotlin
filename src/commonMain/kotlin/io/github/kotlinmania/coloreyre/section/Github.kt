@@ -6,6 +6,14 @@ import io.github.kotlinmania.coloreyre.Location
 import io.github.kotlinmania.coloreyre.SpanTrace
 import io.github.kotlinmania.url.Url
 
+/**
+ * A type-erased displayable value.
+ *
+ * This is the Kotlin equivalent of the boxed display type in the upstream Rust
+ * crate.
+ */
+internal typealias Display = Any
+
 internal data class IssueSection(
     private val url: String,
     private val msg: String,
@@ -21,6 +29,14 @@ internal data class IssueSection(
     internal fun withSpanTrace(spanTrace: SpanTrace?): IssueSection = copy(spanTrace = spanTrace)
 
     internal fun withMetadata(metadata: List<Pair<String, Any>>): IssueSection = copy(metadata = metadata)
+
+    internal companion object {
+        /**
+         * Construct an [IssueSection] with the given URL and message, with all
+         * optional fields defaulting to null/empty.
+         */
+        internal fun new(url: String, msg: String): IssueSection = IssueSection(url, msg)
+    }
 
     override fun toString(): String {
         val locationMetadata = location?.let { listOf("location" to it as Any) } ?: emptyList()

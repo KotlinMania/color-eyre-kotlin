@@ -1,6 +1,6 @@
 # port-lint Proposed Changes
 
-**Generated:** 2026-08-28
+**Generated:** 2026-10-13
 **Source:** tmp/color-eyre/src
 **Target:** src/commonMain/kotlin/io/github/kotlinmania/coloreyre
 
