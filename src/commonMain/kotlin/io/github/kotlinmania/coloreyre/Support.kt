@@ -17,9 +17,13 @@ public enum class SpanTraceStatus {
     Empty,
 }
 
-public class SpanTrace(private val status: SpanTraceStatus = SpanTraceStatus.Captured) {
+public class SpanTrace(
+    private val status: SpanTraceStatus = SpanTraceStatus.Captured,
+) {
     public fun status(): SpanTraceStatus = status
+
     public fun colorized(): String = ""
+
     override fun toString(): String = ""
 
     public companion object {
@@ -29,6 +33,7 @@ public class SpanTrace(private val status: SpanTraceStatus = SpanTraceStatus.Cap
 
 internal object PanicRuntime {
     fun panicking(): Boolean = false
+
     fun setHook(hook: (PanicInfo) -> Unit) {}
 }
 
@@ -38,7 +43,9 @@ internal object Console {
     }
 }
 
-public class PathBuf(public val path: String) {
+public class PathBuf(
+    public val path: String,
+) {
     override fun toString(): String = path
 }
 
@@ -48,7 +55,9 @@ public class BacktraceSymbol(
     private val filename: PathBuf? = null,
 ) {
     public fun name(): String? = name
+
     public fun lineno(): UInt? = lineno
+
     public fun filename(): PathBuf? = filename
 }
 
@@ -62,10 +71,12 @@ public class Backtrace(
     private val frames: List<BacktraceFrame> = emptyList(),
 ) {
     public fun frames(): List<BacktraceFrame> = frames
+
     override fun toString(): String = ""
 
     public companion object {
         public fun new(): Backtrace = Backtrace()
+
         public fun capture(): Backtrace = Backtrace()
     }
 }

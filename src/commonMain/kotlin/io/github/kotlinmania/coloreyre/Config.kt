@@ -248,7 +248,7 @@ public data class Frame(
     public val filename: PathBuf? = null,
 ) {
     internal fun isDependencyCode(): Boolean {
-        val symbolPrefixes =
+        val symPrefixes =
             listOf(
                 "std::",
                 "core::",
@@ -267,7 +267,7 @@ public data class Frame(
                 "start_thread",
             )
 
-        if (name != null && symbolPrefixes.any { name.startsWith(it) }) {
+        if (name != null && symPrefixes.any { name.startsWith(it) }) {
             return true
         }
 
@@ -288,7 +288,7 @@ public data class Frame(
      * frame.
      */
     internal fun isPostPanicCode(): Boolean {
-        val symbolPrefixes =
+        val symPrefixes =
             listOf(
                 "_rust_begin_unwind",
                 "rust_begin_unwind",
@@ -303,7 +303,7 @@ public data class Frame(
                 "failure::error_message::err_msg",
                 "<failure::error::Error as core::convert::From<F>>::from",
             )
-        return name?.let { current -> symbolPrefixes.any { current.startsWith(it) } } ?: false
+        return name?.let { current -> symPrefixes.any { current.startsWith(it) } } ?: false
     }
 
     /**
@@ -311,7 +311,7 @@ public data class Frame(
      * language runtime.
      */
     internal fun isRuntimeInitCode(): Boolean {
-        val symbolPrefixes =
+        val symPrefixes =
             listOf(
                 "std::rt::lang_start::",
                 "test::run_test::run_test_inner::",
@@ -320,7 +320,7 @@ public data class Frame(
         val currentName = name ?: return false
         val currentFile = filename?.toString() ?: return false
 
-        if (symbolPrefixes.any { currentName.startsWith(it) }) {
+        if (symPrefixes.any { currentName.startsWith(it) }) {
             return true
         }
 
@@ -420,18 +420,20 @@ public class HookBuilder internal constructor(
         issueUrl: String? = this.issueUrl,
         issueMetadata: List<Pair<String, Any>> = this.issueMetadata,
         issueFilter: IssueFilterCallback = this.issueFilter,
-    ): HookBuilder = HookBuilder(
-        filters = filters,
-        captureSpanTraceByDefault = captureSpanTraceByDefault,
-        displayEnvSection = displayEnvSection,
-        displayLocationSection = displayLocationSection,
-        panicSection = panicSection,
-        panicMessage = panicMessage,
-        theme = theme,
-        issueUrl = issueUrl,
-        issueMetadata = issueMetadata,
-        issueFilter = issueFilter,
-    )
+    ): HookBuilder =
+        HookBuilder(
+            filters = filters,
+            captureSpanTraceByDefault = captureSpanTraceByDefault,
+            displayEnvSection = displayEnvSection,
+            displayLocationSection = displayLocationSection,
+            panicSection = panicSection,
+            panicMessage = panicMessage,
+            theme = theme,
+            issueUrl = issueUrl,
+            issueMetadata = issueMetadata,
+            issueFilter = issueFilter,
+        )
+
     /**
      * Set the global styles that color-eyre should use.
      */
@@ -590,10 +592,10 @@ private data class DefaultPanicMessage(
     private val theme: Theme,
 ) : PanicMessage {
     override fun display(panicInfo: PanicInfo, out: Appendable) {
-        out.appendLine(theme.panicHeader.style("The application panicked (crashed)."))
+        out.appendLine(theme.panicHeader.style("The application panicked (crashed).").toString())
         val payload = panicInfo.payload ?: "<non string panic payload>"
         out.append("Message:  ")
-        out.appendLine(theme.panicMessage.style(payload))
+        out.appendLine(theme.panicMessage.style(payload).toString())
         out.append("Location: ")
         out.append(LocationSection(panicInfo.location, theme).toString())
     }
@@ -640,8 +642,8 @@ public data class PanicReport(
             if (url != null && hook.issueFilter.filter(ErrorKind.NonRecoverable(panicInfo.payload))) {
                 append("\n\n")
                 append(
-                    io.github.kotlinmania.coloreyre.section.github
-                        .IssueSection(url, panicInfo.payload ?: "")
+                    io.github.kotlinmania.coloreyre.section
+                        .IssueSection(url, panicInfo.payload.orEmpty())
                         .withBacktrace(backtrace)
                         .withLocation(panicInfo.location)
                         .withMetadata(hook.issueMetadata),
@@ -786,7 +788,12 @@ internal data class BacktraceFormatter(
                 val frameDelta = frame.n - lastN - 1
                 if (frameDelta != 0) {
                     append('\n')
-                    append(theme.hiddenFrames.style(hiddenFrames(frameDelta)).center(80, ' '))
+                    append(
+                        theme.hiddenFrames
+                            .style(hiddenFrames(frameDelta))
+                            .toString()
+                            .center(80, ' '),
+                    )
                 }
                 append('\n')
                 append(StyledFrame(frame, theme))
@@ -797,7 +804,12 @@ internal data class BacktraceFormatter(
             val lastUnfilteredN = frames.last().n
             if (lastFilteredN < lastUnfilteredN) {
                 append('\n')
-                append(theme.hiddenFrames.style(hiddenFrames(lastUnfilteredN - lastFilteredN)).center(80, ' '))
+                append(
+                    theme.hiddenFrames
+                        .style(hiddenFrames(lastUnfilteredN - lastFilteredN))
+                        .toString()
+                        .center(80, ' '),
+                )
             }
         }
 }
@@ -814,14 +826,14 @@ internal enum class Verbosity {
 }
 
 internal fun panicVerbosity(): Verbosity =
-    when (val value = Env.varOrNull("RUST_BACKTRACE")) {
+    when (Env.varOrNull("RUST_BACKTRACE")) {
         "full" -> Verbosity.Full
         null, "0" -> Verbosity.Minimal
         else -> Verbosity.Medium
     }
 
 internal fun libVerbosity(): Verbosity =
-    when (val value = Env.varOrNull("RUST_LIB_BACKTRACE") ?: Env.varOrNull("RUST_BACKTRACE")) {
+    when (Env.varOrNull("RUST_LIB_BACKTRACE") ?: Env.varOrNull("RUST_BACKTRACE")) {
         "full" -> Verbosity.Full
         null, "0" -> Verbosity.Minimal
         else -> Verbosity.Medium
@@ -831,7 +843,9 @@ public class FrameList internal constructor(
     internal val frames: MutableList<Frame> = mutableListOf(),
 ) {
     public constructor() : this(mutableListOf())
+
     public val size: Int get() = frames.size
+
     public operator fun get(index: Int): Frame = frames[index]
 }
 

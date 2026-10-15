@@ -5,7 +5,6 @@ import kotlin.test.Test
 import kotlin.test.assertTrue
 
 class InstallTest {
-
     @Test
     fun double_install_should_not_panic() {
         EyreRuntime.reset()
