@@ -1,362 +1,310 @@
-# color-eyre-kotlin in Kotlin
+# color-eyre-kotlin
 
-[![GitHub link](https://img.shields.io/badge/GitHub-KotlinMania%2Fcolor--eyre--kotlin-blue.svg)](https://github.com/KotlinMania/color-eyre-kotlin)
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.kotlinmania/color-eyre-kotlin)](https://central.sonatype.com/artifact/io.github.kotlinmania/color-eyre-kotlin)
-[![Build status](https://img.shields.io/github/actions/workflow/status/KotlinMania/color-eyre-kotlin/ci.yml?branch=main)](https://github.com/KotlinMania/color-eyre-kotlin/actions)
+<div align="center">
 
-This is a Kotlin Multiplatform line-by-line transliteration port of [`eyre-rs/eyre`](https://github.com/eyre-rs/eyre).
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.kotlinmania/color-eyre-kotlin?color=blue&logo=apachemaven)](https://central.sonatype.com/artifact/io.github.kotlinmania/color-eyre-kotlin)
+[![CI](https://img.shields.io/github/actions/workflow/status/KotlinMania/color-eyre-kotlin/ci.yml?branch=main&label=CI&logo=githubactions&logoColor=white)](https://github.com/KotlinMania/color-eyre-kotlin/actions)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.4.20-7F52FF.svg?logo=kotlin&logoColor=white)](https://kotlinlang.org)
+[![Platform: KMP](https://img.shields.io/badge/Platform-Multiplatform-blue.svg?logo=kotlin&logoColor=white)](https://kotlinlang.org/docs/multiplatform.html)
+[![Swift Export](https://img.shields.io/badge/Swift_Export-Ready-F05138.svg?logo=swift&logoColor=white)](https://github.com/KotlinMania/color-eyre-kotlin)
+[![License: MIT / Apache-2.0](https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-green.svg)](https://opensource.org/licenses/MIT)
+[![GitHub Release](https://img.shields.io/github/v/release/KotlinMania/color-eyre-kotlin?color=purple&logo=github)](https://github.com/KotlinMania/color-eyre-kotlin/releases)
+[![Upstream Crate](https://img.shields.io/crates/v/color-eyre.svg?label=upstream%20color-eyre&color=orange&logo=rust)](https://crates.io/crates/color-eyre)
 
-**Original Project:** This port is based on [`eyre-rs/eyre`](https://github.com/eyre-rs/eyre). All design credit and project intent belong to the upstream authors; this repository is a faithful port to Kotlin Multiplatform with no behavioural changes intended.
+**Colorful, consistent, and well-formatted error and panic reports for Kotlin Multiplatform.**
 
-### Porting status
+*A faithful line-by-line transliteration of Jane Lusby's ([@yaahc](https://github.com/yaahc)) [`color-eyre`](https://github.com/eyre-rs/eyre/tree/master/color-eyre) Rust crate.*
 
-This is an **in-progress port**. The goal is feature parity with the upstream Rust crate while providing a native Kotlin Multiplatform API. Every Kotlin file carries a `// port-lint: source <path>` header naming its upstream Rust counterpart so the AST-distance tool can track provenance.
+</div>
 
 ---
 
-## Upstream README — `eyre-rs/eyre`
+## Overview
 
-> The text below is reproduced and lightly edited from [`https://github.com/eyre-rs/eyre`](https://github.com/eyre-rs/eyre). It is the upstream project's own description and remains under the upstream authors' authorship; links have been rewritten to absolute upstream URLs so they continue to resolve from this repository.
+In terminal applications, CLI utilities, and backend services, plain exception stack traces are often noisy, difficult to scan, and lacking in operational context. Diagnostic information such as causal chains, command outputs, suggestions, and relevant environment details is easily lost.
 
-## eyre
+`color-eyre-kotlin` brings the beloved error reporting workflow of Rust's `color-eyre` crate to Kotlin Multiplatform:
 
-[![Build Status][actions-badge]][actions-url]
-[![Latest Version][version-badge]][version-url]
-[![Rust Documentation][docs-badge]][docs-url]
-[![Discord chat][discord-badge]][discord-url]
-
-[actions-badge]: https://github.com/eyre-rs/eyre/workflows/Continuous%20integration/badge.svg
-[actions-url]: https://github.com/eyre-rs/eyre/actions?query=workflow%3A%22Continuous+integration%22
-[version-badge]: https://img.shields.io/crates/v/eyre.svg
-[version-url]: https://crates.io/crates/eyre
-[docs-badge]: https://img.shields.io/badge/docs-latest-blue.svg
-[docs-url]: https://docs.rs/eyre
-[discord-badge]: https://img.shields.io/discord/960645145018110012?label=eyre%20community%20discord
-[discord-url]: https://discord.gg/z94RqmUTKB
-
-This library provides [`eyre::Report`][Report], a trait object based
-error handling type for easy idiomatic error handling and reporting in Rust
-applications.
-
-This crate is a fork of [`anyhow`]  with support for customized
-error reports. For more details on customization checkout the docs on
-[`eyre::EyreHandler`].
-
-## Custom Report Handlers
-
-The heart of this crate is its ability to swap out the Handler type to change
-what information is carried alongside errors and how the end report is
-formatted. This crate is meant to be used alongside companion crates that
-customize its behavior. Below is a list of known crates that export report
-handlers for eyre and short summaries of what features they provide.
-
-- [`stable-eyre`]: Switches the backtrace type from `std`'s to `backtrace-rs`'s
-  so that it can be captured on stable. The report format is identical to
-  `DefaultHandler`'s report format.
-- [`color-eyre`]: Captures a `backtrace::Backtrace` and a
-  `tracing_error::SpanTrace`. Provides a `Help` trait for attaching warnings
-  and suggestions to error reports. The end report is then pretty printed with
-  the help of [`color-backtrace`], [`color-spantrace`], and `ansi_term`. Check
-  out the README on [`color-eyre`] for details on the report format.
-- [`simple-eyre`]: A minimal `EyreHandler` that captures no additional
-  information, for when you do not wish to capture `Backtrace`s with errors.
-- [`jane-eyre`]: A report handler crate that exists purely for the pun of it.
-  Currently just re-exports `color-eyre`.
-
-## Usage Recommendations and Stability Considerations
-
-**We recommend users do not re-export types from this library as part their own
-public API for libraries with external users.** The main reason for this is
-that it will make your library API break if we ever bump the major version
-number on eyre and your users upgrade the eyre version they use in their
-application code before you upgrade your own eyre dep version[^1].
-
-However, even beyond this API stability hazard, there are other good reasons to
-avoid using `eyre::Report` as your public error type.
-
-- You export an undocumented error interface that is otherwise still accessible
-  via downcast, making it hard for users to react to specific errors while not
-  preventing them from depending on details you didn't mean to make part of
-  your public API.
-  - This in turn makes the error types of all libraries you use a part of your
-    public API as well, and makes changing any of those libraries into an
-    undetectable runtime breakage.
-- If many of your errors are constructed from strings you encourage your users
-  to use string comparison for reacting to specific errors which is brittle
-  and turns updating error messages into a potentially undetectable runtime
-  breakage.
-
-## Details
-
-- Use `Result<T, eyre::Report>`, or equivalently `eyre::Result<T>`, as the
-  return type of any fallible function.
-
-  Within the function, use `?` to easily propagate any error that implements the
-  `std::error::Error` trait.
-
-  ```rust
-  use eyre::Result;
-
-  fn get_cluster_info() -> Result<ClusterMap> {
-      let config = std::fs::read_to_string("cluster.json")?;
-      let map: ClusterMap = serde_json::from_str(&config)?;
-      Ok(map)
-  }
-  ```
-
-- Wrap a lower level error with a new error created from a message to help the
-  person troubleshooting understand the chain of failures that occurred. A
-  low-level error like "No such file or directory" can be annoying to debug
-  without more information about what higher level step the application was in
-  the middle of.
-
-  ```rust
-  use eyre::{ResultExt, Result};
-
-  fn main() -> Result<()> {
-      ...
-      it.detach().wrap_err("Failed to detach the important thing")?;
-
-      let content = std::fs::read(path)
-          .wrap_err_with(|| format!("Failed to read instrs from {}", path))?;
-      ...
-  }
-  ```
-
-  ```console
-  Error: Failed to read instrs from ./path/to/instrs.json
-
-  Caused by:
-      No such file or directory (os error 2)
-  ```
-
-- Downcasting is supported and can be by value, by shared reference, or by
-  mutable reference as needed.
-
-  ```rust
-  // If the error was caused by redaction, then return a
-  // tombstone instead of the content.
-  match root_cause.downcast_ref::<DataStoreError>() {
-      Some(DataStoreError::Censored(_)) => Ok(Poll::Ready(REDACTED_CONTENT)),
-      None => Err(error),
-  }
-  ```
-
-- A backtrace is captured and printed with the error. On nightly,
-  eyre will use the underlying error's backtrace if it has one. In order
-  to see backtraces, they must be enabled through the environment variables
-  described in [`std::backtrace`]:
-
-  - If you want panics and errors to both have backtraces, set
-    `RUST_BACKTRACE=1`;
-  - If you want only errors to have backtraces, set `RUST_LIB_BACKTRACE=1`;
-  - If you want only panics to have backtraces, set `RUST_BACKTRACE=1` and
-    `RUST_LIB_BACKTRACE=0`.
-
-  The tracking issue for this feature is [rust-lang/rust#53487].
-
-  [`std::backtrace`]: https://doc.rust-lang.org/std/backtrace/index.html#environment-variables
-  [rust-lang/rust#53487]: https://github.com/rust-lang/rust/issues/53487
-
-- Eyre works with any error type that has an impl of `std::error::Error`,
-  including ones defined in your crate. We do not bundle a `derive(Error)` macro
-  but you can write the impls yourself or use a standalone macro like
-  [thiserror](https://github.com/dtolnay/thiserror).
-
-  ```rust
-  use thiserror::Error;
-
-  #[derive(Error, Debug)]
-  pub enum FormatError {
-      #[error("Invalid header (expected {expected:?}, got {found:?})")]
-      InvalidHeader {
-          expected: String,
-          found: String,
-      },
-      #[error("Missing attribute: {0}")]
-      MissingAttribute(String),
-  }
-  ```
-
-- One-off error messages can be constructed using the `eyre!` macro, which
-  supports string interpolation and produces an `eyre::Report`.
-
-  ```rust
-  return Err(eyre!("Missing attribute: {}", missing));
-  ```
-
-  A `bail!` macro is provided as a shorthand for the same early return.
-
-  ```rust
-  bail!("Missing attribute: {}", missing);
-  ```
-
-  This macro also supports format args captures.
-
-  ```rust
-  return Err(eyre!("Missing attribute: {missing}"));
-  ```
-
-  ```rust
-  bail!("Missing attribute: {missing}");
-  ```
-
-## No-std support
-
-No-std support was removed in 2020 in [commit 608a16a] due to unaddressed upstream breakages.
-[commit 608a16a]:
-https://github.com/eyre-rs/eyre/pull/29/commits/608a16aa2c2c27eca6c88001cc94c6973c18f1d5
-
-
-## Backtrace support
-
-The built in default handler has support for capturing backtrace using `rustc-1.65` or later.
-
-Backtraces are captured when an error is converted to an `eyre::Report` (such as using `?` or `eyre!`).
-
-If using the nightly toolchain, backtraces will also be captured and accessed from other errors using [error_generic_member_access](https://github.com/rust-lang/rfcs/pull/2895) if available.
-
-## Comparison to failure
-
-The `eyre::Report` type works something like `failure::Error`, but unlike
-failure ours is built around the standard library's `std::error::Error` trait
-rather than a separate trait `failure::Fail`. The standard library has adopted
-the necessary improvements for this to be possible as part of [RFC 2504].
-
-[RFC 2504]: https://github.com/rust-lang/rfcs/blob/master/text/2504-fix-error.md
-
-## Comparison to thiserror
-
-Use `eyre` if you don't think you'll do anything with an error other than
-report it. This is common in application code. Use `thiserror` if you think
-you need an error type that can be handled via match or reported. This is
-common in library crates where you don't know how your users will handle
-your errors.
-
-## Compatibility with `anyhow`
-
-This crate does its best to be usable as a drop in replacement of `anyhow` and
-vice-versa by `re-exporting` all of the renamed APIs with the names used in
-`anyhow`, though there are some differences still.
-
-### Disabling the compatibility layer
-
-The `anyhow` compatibility layer is disabled by default.
-If you need anyhow compatibility, it is advisable
-to enable the `"anyhow"` feature:
-
-```toml
-eyre = { version = "0.6", features = ["anyhow"] }
-```
-
-### `Context` and `Option`
-
-As part of renaming `Context` to `ResultExt` we also intentionally do not
-implement `ResultExt` for `Option`. This decision was made because `wrap_err`
-implies that you're creating a new error that saves the old error as its
-`source`. With `Option` there is no source error to wrap, so `wrap_err` ends up
-being somewhat meaningless.
-
-Instead `eyre` offers [`OptionExt::ok_or_eyre`] to yield _static_ errors from `None`,
-and intends for users to use the combinator functions provided by
-`std`, converting `Option`s to `Result`s, for _dynamic_ errors.
-So where you would write this with
-anyhow:
-
-[`OptionExt::ok_or_eyre`]: https://docs.rs/eyre/latest/eyre/trait.OptionExt.html#tymethod.ok_or_eyre
-
-```rust
-use anyhow::Context;
-
-let opt: Option<()> = None;
-let result_static = opt.context("static error message");
-let result_dynamic = opt.with_context(|| format!("{} error message", "dynamic"));
-```
-
-With `eyre` we want users to write:
-
-```rust
-use eyre::{eyre, OptionExt, Result};
-
-let opt: Option<()> = None;
-let result_static: Result<()> = opt.ok_or_eyre("static error message");
-let result_dynamic: Result<()> = opt.ok_or_else(|| eyre!("{} error message", "dynamic"));
-```
-
-**NOTE**: However, to help with porting we do provide a `ContextCompat` trait which
-implements `context` for options which you can import to make existing
-`.context` calls compile.
-
-[Report]: https://docs.rs/eyre/*/eyre/struct.Report.html
-[`eyre::EyreHandler`]: https://docs.rs/eyre/*/eyre/trait.EyreHandler.html
-[`eyre::ResultExt`]: https://docs.rs/eyre/*/eyre/trait.ResultExt.html
-[`anyhow::Context`]: https://docs.rs/anyhow/*/anyhow/trait.Context.html
-[`anyhow`]: https://github.com/dtolnay/anyhow
-[`tracing_error::SpanTrace`]: https://docs.rs/tracing-error/*/tracing_error/struct.SpanTrace.html
-[`stable-eyre`]: https://github.com/eyre-rs/stable-eyre
-[`color-eyre`]: https://github.com/eyre-rs/eyre/tree/master/color-eyre
-[`jane-eyre`]: https://github.com/yaahc/jane-eyre
-[`simple-eyre`]: https://github.com/eyre-rs/eyre/tree/master/simple-eyre
-[`color-spantrace`]: https://github.com/eyre-rs/eyre/tree/master/color-spantrace
-[`color-backtrace`]: https://github.com/athre0z/color-backtrace
-
-[^1]: example and explanation of breakage https://github.com/eyre-rs/eyre/issues/30#issuecomment-647650361
-
-#### License
-
-<sup>
-Licensed under either of <a href="LICENSE-APACHE">Apache License, Version
-2.0</a> or <a href="LICENSE-MIT">MIT license</a> at your option.
-</sup>
-
-<br>
-
-<sub>
-Unless you explicitly state otherwise, any contribution intentionally submitted
-for inclusion in this crate by you, as defined in the Apache-2.0 license, shall
-be dual licensed as above, without any additional terms or conditions.
-</sub>
+1. **Rich ANSI Coloring**: Distinct syntax highlighting for file paths, line numbers, error messages, active source frames, notes, and warnings powered by `owo-colors-kotlin`.
+2. **Causal Chain Formatting**: Clear, indented representation of root causes and wrapped exceptions (`Throwable.chain()`).
+3. **Structured Informational Sections**: First-class support for attaching suggestions, warnings, notes, auxiliary error logs, or custom indented sections to reports.
+4. **Custom Panic & Exception Hooks**: Unifies unhandled exception/panic reporting with configurable filters and display formats.
+5. **Automated GitHub Issue URLs**: Automatically constructs issue reporting links pre-populated with markdown-formatted backtraces, span traces, and environment metadata.
+6. **Kotlin Multiplatform**: Seamless support across JVM, Android, iOS, macOS, Linux, Windows, JavaScript, and WebAssembly (Wasm-JS & Wasm-WASI).
 
 ---
 
-## About this Kotlin port
+## Features
 
-### Installation
+- 🎨 **Terminal Styling via `owo-colors`**: Full ANSI styling with dark and light themes, completely customizable per UI component.
+- ⛓️ **Exception Chain Propagation**: Traverses exception causes and displays each failure step clearly.
+- 💡 **Informative Help Sections**: Attach notes (`.note()`), warnings (`.warning()`), suggestions (`.suggestion()`), or child errors (`.error()`).
+- 📑 **Indented Content Headers**: Use `.header("Title:")` to cleanly format multi-line stdout, stderr, or configuration payloads while suppressing empty sections.
+- 🔍 **Configurable Report Verbosity**: Minimal, short, and full report formats with source line context display.
+- 🧹 **Frame Filtering**: Filter out runtime internals, test runners, or dependency frames to keep reports actionable.
+- 🐙 **One-Click Issue Reporting**: Optional GitHub issue URL generation with collapsed backtrace/spantrace markdown blocks and environment metadata tables.
+- 🍏 **Native Swift Export**: First-class Swift PM package generation ready for direct Xcode consumption.
+
+---
+
+## Installation
+
+### Gradle (Kotlin DSL)
+
+Add `color-eyre-kotlin` to your `commonMain` dependencies:
 
 ```kotlin
-dependencies {
-    implementation("io.github.kotlinmania:color-eyre-kotlin:0.1.0")
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation("io.github.kotlinmania:color-eyre-kotlin:0.1.0")
+        }
+    }
 }
 ```
 
-### Building
+### Gradle Version Catalog (`gradle/libs.versions.toml`)
 
-```bash
-./gradlew build
-./gradlew test
+```toml
+[versions]
+color-eyre = "0.1.0"
+
+[libraries]
+color-eyre = { module = "io.github.kotlinmania:color-eyre-kotlin", version.ref = "color-eyre" }
 ```
 
-### Targets
+```kotlin
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation(libs.color.eyre)
+        }
+    }
+}
+```
 
-- macOS arm64
-- Linux x64
-- Windows mingw-x64
-- iOS arm64 / simulator-arm64 (Swift export + XCFramework)
-- JS (browser + Node.js)
-- Wasm-JS (browser + Node.js)
-- Android (API 24+)
+### Maven
 
-### Porting guidelines
+```xml
+<dependency>
+    <groupId>io.github.kotlinmania</groupId>
+    <artifactId>color-eyre-kotlin</artifactId>
+    <version>0.1.0</version>
+</dependency>
+```
 
-See [AGENTS.md](AGENTS.md) and [CLAUDE.md](CLAUDE.md) for translator discipline, port-lint header convention, and Rust → Kotlin idiom mapping.
+---
 
-### License
+## Quick Start
 
-This Kotlin port is distributed under the same MIT license as the upstream [`eyre-rs/eyre`](https://github.com/eyre-rs/eyre). See [LICENSE](LICENSE) (and any sibling `LICENSE-*` / `NOTICE` files mirrored from upstream) for the full text.
+### Basic Installation
 
-Original work copyrighted by the eyre authors.  
-Kotlin port: Copyright (c) 2026 Sydney Renee and The Solace Project.
+To install the default error and panic report hooks at application startup, call `install()`:
 
-### Acknowledgments
+```kotlin
+import io.github.kotlinmania.coloreyre.install
 
-Thanks to the [`eyre-rs/eyre`](https://github.com/eyre-rs/eyre) maintainers and contributors for the original Rust implementation. This port reproduces their work in Kotlin Multiplatform; bug reports about upstream design or behavior should go to the upstream repository.
+fun main() {
+    // Install default error and panic reporting hooks
+    install().getOrThrow()
+
+    // Application logic proceeds with color-eyre formatting enabled
+}
+```
+
+---
+
+## Configuration & Advanced Usage
+
+### Customizing with `HookBuilder`
+
+`HookBuilder` provides complete control over the reporting pipeline:
+
+```kotlin
+import io.github.kotlinmania.coloreyre.HookBuilder
+import io.github.kotlinmania.coloreyre.Theme
+
+fun configureErrorReporting() {
+    HookBuilder.new()
+        // Select dark or light theme, or supply a custom Theme
+        .theme(Theme.dark())
+        // Display environment variable guidance (e.g. RUST_BACKTRACE hints)
+        .displayEnvSection(true)
+        // Display source file/line location where the error occurred
+        .displayLocationSection(true)
+        // Install frame filters to omit noise from dependencies
+        .addDefaultFilters()
+        // Configure automated GitHub issue creation links
+        .issueUrl("https://github.com/my-org/my-project/issues/new")
+        .addIssueMetadata("Version", "1.0.0")
+        .addIssueMetadata("Target", "Kotlin Multiplatform")
+        .install()
+        .getOrThrow()
+}
+```
+
+---
+
+### Attaching Custom Sections to Error Reports
+
+You can attach contextual sections to error reports using the `section` extension functions from `io.github.kotlinmania.coloreyre.section`:
+
+```kotlin
+import io.github.kotlinmania.coloreyre.Handler
+import io.github.kotlinmania.coloreyre.section.error
+import io.github.kotlinmania.coloreyre.section.header
+import io.github.kotlinmania.coloreyre.section.note
+import io.github.kotlinmania.coloreyre.section.suggestion
+import io.github.kotlinmania.coloreyre.section.warning
+import io.github.kotlinmania.coloreyre.section.withSection
+
+fun handleProcessFailure(handler: Handler, exitCode: Int, stdout: String, stderr: String) {
+    handler
+        .note("Configuration loaded from /etc/app/config.json")
+        .warning("Process exited with non-zero exit code: $exitCode")
+        .suggestion("Verify database credentials and network connectivity, then retry.")
+        // Attach multi-line command output with an indented header (omitted if body is empty)
+        .withSection {
+            stderr.trim().header("Stderr:")
+        }
+        .withSection {
+            stdout.trim().header("Stdout:")
+        }
+}
+```
+
+When rendered, the resulting report cleanly formats each section with distinct colorized labels:
+
+```text
+Error: Failed to execute process
+
+Location:
+    at src/commonMain/kotlin/com/example/Process.kt:42
+
+Stderr:
+    Connection refused: port 5432 unreachable
+
+Note: Configuration loaded from /etc/app/config.json
+Warning: Process exited with non-zero exit code: 1
+Suggestion: Verify database credentials and network connectivity, then retry.
+```
+
+---
+
+### Indented Sections via `.header(...)`
+
+`IndentedSection` ensures consistent indentation across all custom sections and automatically suppresses headers when content is blank:
+
+```kotlin
+import io.github.kotlinmania.coloreyre.section.header
+
+val stdout = "  "
+val section = stdout.trim().header("Output:")
+
+println(section.toString()) // Produces empty string — does not pollute the report!
+```
+
+---
+
+### Automated GitHub Issue URL Generation
+
+When an `issueUrl` is configured on `HookBuilder`, recoverable errors or panics can append an autogenerated link that opens a pre-filled GitHub issue in the user's browser:
+
+```kotlin
+HookBuilder.new()
+    .issueUrl("https://github.com/KotlinMania/color-eyre-kotlin/issues/new")
+    .addIssueMetadata("App Version", "0.1.0")
+    .addIssueMetadata("OS", "macOS")
+    .install()
+    .getOrThrow()
+```
+
+The generated URL includes:
+- Markdown table containing application and system metadata.
+- Pre-formatted exception chain and message.
+- Collapsible `<details>` blocks for backtraces and span traces.
+
+---
+
+### Customizing Themes with `owo-colors-kotlin`
+
+The `Theme` data class allows fine-grained control over colors and font styles:
+
+```kotlin
+import io.github.kotlinmania.coloreyre.Theme
+import io.github.kotlinmania.owocolors.style
+
+val customTheme = Theme.dark()
+    .file(style().cyan())
+    .lineNumber(style().yellow())
+    .error(style().brightRed().bold())
+    .helpInfoWarning(style().yellow().bold())
+    .helpInfoSuggestion(style().green())
+    .helpInfoNote(style().blue())
+
+HookBuilder.new()
+    .theme(customTheme)
+    .install()
+    .getOrThrow()
+```
+
+---
+
+## Core API Reference
+
+| Component / Function | Return Type | Description |
+|---|---|---|
+| `install()` | `Result<Unit>` | Installs default panic and error report hooks. |
+| `HookBuilder.new()` | `HookBuilder` | Constructs a fluent builder for configuring hooks. |
+| `HookBuilder.theme(Theme)` | `HookBuilder` | Configures the visual theme for rendered reports. |
+| `HookBuilder.displayEnvSection(Boolean)` | `HookBuilder` | Toggles display of the environment variables advice section. |
+| `HookBuilder.displayLocationSection(Boolean)` | `HookBuilder` | Toggles display of the source location section. |
+| `HookBuilder.issueUrl(String)` | `HookBuilder` | Sets the target URL for GitHub issue generation. |
+| `HookBuilder.addIssueMetadata(String, Any)` | `HookBuilder` | Attaches key-value metadata to generated GitHub issues. |
+| `HookBuilder.addDefaultFilters()` | `HookBuilder` | Adds standard frame filters to remove internal noise. |
+| `Handler.note(Any)` | `Handler` | Attaches a styled note section to the report. |
+| `Handler.warning(Any)` | `Handler` | Attaches a styled warning section to the report. |
+| `Handler.suggestion(Any)` | `Handler` | Attaches a styled suggestion section to the report. |
+| `Handler.error(Throwable)` | `Handler` | Attaches an auxiliary error chain to the report. |
+| `Handler.withSection(() -> Any)` | `Handler` | Lazily evaluates and attaches a custom section. |
+| `Any.header(Any)` | `IndentedSection` | Wraps content with an indented header, omitted if content is blank. |
+| `Throwable.chain()` | `List<Throwable>` | Returns the complete causal chain from root to cause. |
+
+---
+
+## Supported Targets
+
+`color-eyre-kotlin` is compiled and verified across all KotlinMania target platforms:
+
+| Platform | Target Identifiers |
+|---|---|
+| **JVM** | `jvm` (Java 21+ toolchain) |
+| **Android** | `android` (AAR, API 24+), `androidNativeArm64`, `androidNativeX64` |
+| **Apple** | `macosArm64`, `iosArm64`, `iosSimulatorArm64`, `iosX64`, `tvosArm64`, `tvosSimulatorArm64`, `watchosArm64`, `watchosDeviceArm64`, `watchosSimulatorArm64` |
+| **Linux** | `linuxX64`, `linuxArm64` |
+| **Windows** | `mingwX64` |
+| **Web** | `js` (Browser & Node.js), `wasmJs` (Browser & Node.js), `wasmWasi` (WASI) |
+
+---
+
+## Acknowledgements & Attribution
+
+`color-eyre-kotlin` is a direct transliteration of the [`color-eyre`](https://github.com/eyre-rs/eyre/tree/master/color-eyre) Rust crate.
+
+- **Original Author**: [Jane Lusby](https://github.com/yaahc) ([@yaahc](https://github.com/yaahc)) and the [`eyre-rs`](https://github.com/eyre-rs) contributors.
+- **Upstream Crate**: Published on [crates.io/crates/color-eyre](https://crates.io/crates/color-eyre) with repository at [eyre-rs/eyre](https://github.com/eyre-rs/eyre).
+- **Original Project Intent**: Providing colorful, user-friendly, and actionable error reports with panic hooks, backtrace customization, and informative help sections for command-line applications.
+- **Kotlin Multiplatform Port**: Maintained by Sydney Renee and The Solace Project as part of the [KotlinMania](https://github.com/KotlinMania) initiative to bring high-quality, native systems and diagnostics libraries from the Rust ecosystem to Kotlin Multiplatform.
+
+All architectural design, formatting layout, and conceptual credit belong to Jane Lusby and the upstream `eyre` maintainers.
+
+---
+
+## License
+
+Dual-licensed under either of:
+
+- [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
+- [MIT License](http://opensource.org/licenses/MIT)
+
+at your option, matching the upstream Rust crate license.
