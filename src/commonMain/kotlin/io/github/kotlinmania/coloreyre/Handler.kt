@@ -85,7 +85,7 @@ internal fun Handler.debug(error: Throwable, alternate: Boolean = false): String
                 }
             separated.ready {
                 append(
-                    io.github.kotlinmania.coloreyre.section.github
+                    io.github.kotlinmania.coloreyre.section
                         .IssueSection(url, payload)
                         .withBacktrace(backtrace)
                         .withMetadata(issueMetadata)

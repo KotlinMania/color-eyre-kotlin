@@ -7,27 +7,27 @@ import kotlin.test.Test
 import kotlin.test.assertTrue
 
 class WasmTest {
-
     @Test
     fun color_eyre_simple() {
         EyreRuntime.reset()
         install().getOrThrow()
 
         val error = RuntimeException("Base Error")
-        val handler = Handler(
-            filters = emptyList(),
-            backtrace = null,
-            suppressBacktrace = false,
-            spanTrace = null,
-            sections = mutableListOf(),
-            displayEnvSection = true,
-            displayLocationSection = false,
-            issueUrl = null,
-            issueMetadata = emptyList(),
-            issueFilter = IssueFilterCallback { true },
-            theme = Theme.dark(),
-            location = null,
-        )
+        val handler =
+            Handler(
+                filters = emptyList(),
+                backtrace = null,
+                suppressBacktrace = false,
+                spanTrace = null,
+                sections = mutableListOf(),
+                displayEnvSection = true,
+                displayLocationSection = false,
+                issueUrl = null,
+                issueMetadata = emptyList(),
+                issueFilter = IssueFilterCallback { true },
+                theme = Theme.dark(),
+                location = null,
+            )
         handler.note("A note")
         handler.suggestion("A suggestion")
 

@@ -5,7 +5,6 @@ import kotlin.test.Test
 import kotlin.test.assertFalse
 
 class LocationDisabledTest {
-
     @Test
     fun disabled() {
         EyreRuntime.reset()
@@ -16,20 +15,21 @@ class LocationDisabledTest {
             .getOrThrow()
 
         val error = RuntimeException("error occured")
-        val handler = Handler(
-            filters = emptyList(),
-            backtrace = null,
-            suppressBacktrace = false,
-            spanTrace = null,
-            sections = mutableListOf(),
-            displayEnvSection = false,
-            displayLocationSection = false,
-            issueUrl = null,
-            issueMetadata = emptyList(),
-            issueFilter = IssueFilterCallback { true },
-            theme = Theme.dark(),
-            location = null,
-        )
+        val handler =
+            Handler(
+                filters = emptyList(),
+                backtrace = null,
+                suppressBacktrace = false,
+                spanTrace = null,
+                sections = mutableListOf(),
+                displayEnvSection = false,
+                displayLocationSection = false,
+                issueUrl = null,
+                issueMetadata = emptyList(),
+                issueFilter = IssueFilterCallback { true },
+                theme = Theme.dark(),
+                location = null,
+            )
         val report = handler.debug(error)
         assertFalse(
             report.contains("Location:"),

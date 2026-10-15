@@ -40,13 +40,15 @@ internal class HeaderWriter<H, W : Appendable>(
     }
 }
 
-internal fun interface WriterExt<W : Appendable> {
+internal interface WriterExt<W : Appendable> {
     fun header(header: Any): HeaderWriter<Any, W>
 }
 
 internal class ReadyHeaderWriter<H, W : Appendable>(
     private val writer: HeaderWriter<H, W>,
 ) : Appendable {
+    fun write_str(s: CharSequence?): Appendable = append(s)
+
     override fun append(value: CharSequence?): Appendable {
         writer.append(value)
         return this
@@ -76,6 +78,8 @@ internal class FooterWriter<W : Appendable>(
     private val inner: W,
     var hadOutput: Boolean = false,
 ) : Appendable {
+    fun write_str(s: CharSequence?): Appendable = append(s)
+
     override fun append(value: CharSequence?): Appendable {
         if (!hadOutput && !value.isNullOrEmpty()) {
             hadOutput = true
